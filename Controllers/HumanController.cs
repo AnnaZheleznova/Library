@@ -14,62 +14,55 @@ namespace Library.Controllers
     [ApiController]
     public class HumanController : ControllerBase
     {
-        HumanContext db;
-        public HumanController(HumanContext context)
+        public static IEnumerable<Human> humans = new List<Human>
         {
-            db = context;
-            if (!db.Humans.Any())
-            {
-                db.Humans.Add(new Human { Surname = "Иванов", Name = "Иван", SecondName = "Иванович", DateBorn = new DateTime(1995, 09, 20) });
-                db.Humans.Add(new Human { Surname = "Петров", Name = "Петр", SecondName = "Петрович", DateBorn = new DateTime(1994, 10, 15) });
-                db.Humans.Add(new Human { Surname = "Ковалев", Name = "Денис", SecondName = "Игоревич", DateBorn = new DateTime(1993, 03, 03) });
-                db.SaveChanges();
-            }
-        }
+            new Human { Surname = "Иванов", Name = "Иван", SecondName = "Иванович", DateBorn = new DateTime(1995, 09, 20) },
+            new Human { Surname = "Петров", Name = "Петр", SecondName = "Петрович", DateBorn = new DateTime(1994, 10, 15)},
+            new Human { Surname = "Ковалев", Name = "Денис", SecondName = "Игоревич", DateBorn = new DateTime(1993, 03, 03) }
+        };
+
         // GET: api/<HumanController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Human>>> Get()
+        public IEnumerable<Human> Get()
         {
-            return await db.Humans.ToListAsync();
+            return humans;
         }
 
         // GET api/<HumanController>/5
         [HttpGet("{name}")]
-        public async Task<ActionResult<Human>> Get(string name)
+        public ActionResult<Human> Get(string name)
         {
-            Human human = await db.Humans.FirstOrDefaultAsync(x => x.Name == name);
+            Human human = humans.FirstOrDefault(x => x.Name == name);
             if (human == null)
                 return NotFound();
             return new ObjectResult(human);
         }
         // POST api/<HumanController>
         [HttpPost]
-        public async Task<ActionResult<IEnumerable<Human>>> Post(Human human)
+        public IEnumerable<Human> Post(Human human)
         {
             if (human == null)
             {
-                return BadRequest();
+                return (IEnumerable<Human>)BadRequest();
             }
 
-            db.Humans.Add(human);
-            await db.SaveChangesAsync();
-            return await db.Humans.ToListAsync();
+            humans.ToList().Add(human);
+            return humans;
         }
 
 
         // DELETE api/<HumanController>/5
         [HttpDelete("{Surname}/{Name}/{SecondName}")]
-        public async Task<ActionResult<Human>> Delete(string Surname, string Name, string SecondName)
+        public ActionResult<Human> Delete(string Surname, string Name, string SecondName)
         {
-            Human user = db.Humans.FirstOrDefault(x => x.Surname == Surname);
-            user = db.Humans.FirstOrDefault(x => x.Name == Name);
-            user = db.Humans.FirstOrDefault(x => x.SecondName == SecondName);
+            Human user = humans.FirstOrDefault(x => x.Surname == Surname);
+            user = humans.FirstOrDefault(x => x.Name == Name);
+            user = humans.FirstOrDefault(x => x.SecondName == SecondName);
             if (user == null)
             {
                 return NotFound();
             }
-            db.Humans.Remove(user);
-            await db.SaveChangesAsync();
+            humans.ToList().Remove(user);
             return Ok();
         }
     }

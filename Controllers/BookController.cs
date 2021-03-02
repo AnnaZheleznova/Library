@@ -11,32 +11,25 @@ namespace Library.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
-        BookContext db;
-        public BookController(BookContext context)
+        public static IEnumerable<Book> books = new List<Book>
         {
-            db = context;
-         
-            if (!db.Books.Any())
-            {
-                db.Books.Add(new Book { Name = "Война и мир", Author = "Толстой", Genre = "Роман" });
-                db.Books.Add(new Book { Name = "Преступление и наказание", Author = "Достоевский", Genre = "Роман" });
-                db.Books.Add(new Book { Name = "Прекрасные и проклятые", Author = "Фицджеральд", Genre = "Роман" });
-                db.SaveChanges();
-            }
-        }
+            new Book { Id = 1, Name = "Война и мир", Author = "Толстой", Genre = "Роман" },
+            new Book { Id = 2, Name = "Преступление и наказание", Author = "Достоевский", Genre = "Роман" },
+            new Book { Id = 3, Name = "Прекрасные и проклятые", Author = "Фицджеральд", Genre = "Роман" }
+        };
+
         // GET: api/book
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> Get()
+        public IEnumerable<Book> Get()
         {
-            return await db.Books.ToListAsync();
+            return  books;
         }
-
 
         // GET api/book/2
         [HttpGet("{author}")]
-        public async Task<ActionResult<Book>> Get(string author)
+        public ActionResult<Book> Get(string author)
         {
-            Book book = await db.Books.FirstOrDefaultAsync(x => x.Author == author);
+            Book book = books.FirstOrDefault(x=> x.Author == author);
             if (book == null)
                 return NotFound();
             return new ObjectResult(book);
@@ -44,30 +37,31 @@ namespace Library.Controllers
 
         // POST api/book
         [HttpPost]
-        public async Task<ActionResult<IEnumerable<Book>>> Post(Book book)
+        public IEnumerable<Book> Post(Book book)
         {
             if (book == null)
             {
-                return BadRequest();
+                return (IEnumerable<Book>)BadRequest();
             }
 
-            db.Books.Add(book);
-            await db.SaveChangesAsync();
-            return await db.Books.ToListAsync();
+            books.ToList().Add(book);
+            //var b = books.First();
+            //b.Author = null;
+            //return b.serialize();
+            return books;
         }
 
         // DELETE api/<HumanController>/5
         [HttpDelete("{author}/{name}")]
-        public async Task<ActionResult<Book>> Delete(string Author, string Name)
+        public ActionResult<Book> Delete(string Author, string Name)
         {
-            Book book = db.Books.FirstOrDefault(x => x.Author == Author);
-            book = db.Books.FirstOrDefault(x => x.Name == Name);
+            Book book = books.FirstOrDefault(x => x.Author == Author);
+            book = books.FirstOrDefault(x => x.Name == Name);
             if (book == null)
             {
                 return NotFound();
             }
-            db.Books.Remove(book);
-            await db.SaveChangesAsync();
+            books.ToList().Remove(book);
             return Ok();
         }
     }

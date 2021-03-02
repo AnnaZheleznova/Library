@@ -7,7 +7,11 @@ namespace Library.Models
 {
     public class Book_Human
     {
-        public int BookHumanId { get; set; }
+        public int Id { get; set; }
+
+        public int BookId { get; set; }
+
+        public virtual Book Book { get; set; }
 
         public string FIOHuman { get; set; }
 

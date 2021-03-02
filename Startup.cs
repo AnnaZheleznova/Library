@@ -18,16 +18,6 @@ namespace Library
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            string conHuman = "Server=(localdb)\\mssqllocaldb;Database=humandbstore;Trusted_Connection=True;";
-            string conBook = "Server=(localdb)\\mssqllocaldb;Database=bookdbstore;Trusted_Connection=True;";
-            string conBook_Human = "Server=(localdb)\\mssqllocaldb;Database=book_humandbstore;Trusted_Connection=True;";
-
-            // устанавливаем контекст данных
-            services.AddDbContext<HumanContext>(options => options.UseSqlServer(conHuman));
-            services.AddDbContext<BookContext>(options => options.UseSqlServer(conBook));
-            services.AddDbContext<Book_HumanContext>(options => options.UseSqlServer(conBook_Human));
-
-
             services.AddControllers(); // используем контроллеры без представлений
         }
 

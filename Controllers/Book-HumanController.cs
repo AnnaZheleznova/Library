@@ -13,24 +13,19 @@ namespace Library.Controllers
     [ApiController]
     public class Book_HumanController : ControllerBase
     {
-        Book_HumanContext db;
-        public Book_HumanController(Book_HumanContext context)
-        {
-            db = context;
-        }
+        public static IEnumerable<Book_Human> bookhuman = new List<Book_Human> { };
 
         // POST api/<HumanController>
         [HttpPost]
-        public async Task<ActionResult<IEnumerable<Book_Human>>> Post(Book_Human book_human)
+        public IEnumerable<Book_Human> Post(Book_Human book_human)
         {
             if (book_human == null)
             {
-                return BadRequest();
+                return (IEnumerable<Book_Human>)BadRequest();
             }
 
-            db.BookHuman.Add(book_human);
-            await db.SaveChangesAsync();
-            return await db.BookHuman.ToListAsync();
+            bookhuman.ToList().Add(book_human);
+            return bookhuman;
         }
 
     }

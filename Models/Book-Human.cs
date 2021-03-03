@@ -13,9 +13,9 @@ namespace Library.Models
 
         public virtual Book Book { get; set; }
 
-        public string FIOHuman { get; set; }
+        public string HumanId { get; set; }
 
-        public string NameBook { get; set; }
+        public virtual Human Human { get; set; }
 
         public DateTimeOffset DateTime { get; set; }
     }

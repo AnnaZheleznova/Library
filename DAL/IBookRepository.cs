@@ -8,9 +8,11 @@ namespace Library.DAL
 {
     interface IBookRepository
     {
-        bool InsertBook(Book book, Author author,Genre genre);
+        List<LibraryCard> InsertBook(Book book, Author author,Genre genre);
         bool DeleteBook(int id);
-        bool NewGenre();
+        bool NewGenre(Book book);
+        List<LibraryCard> AllBookByAuthor(Author author);
+        List<LibraryCard> AllBookByGenre(Genre genre);
 
     }
 }

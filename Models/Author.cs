@@ -7,9 +7,9 @@ namespace Library.Models
 {
     public class Author
     {
-        public int authorId { get; set; }
-        public string firstName { get; set; }
-        public string lastName { get; set; }
-        public string middleName { get; set; }
+        public int AuthorId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string MiddleName { get; set; }
     }
 }

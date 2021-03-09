@@ -13,121 +13,122 @@ namespace Library.DAL
 {
     public class PersonRepository : IPersonRepository
     {
-        private readonly IDbConnection _db;
-
-        public PersonRepository()
+        public List<LibraryCard> GetPerson(int Id)
         {
-            _db = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
-        }
-
-        public List<Person> GetPerson()
-        {
-            return this._db.Query<Person>("select * from [Library].[dbo].[person]").ToList();
-        }
-
-        public bool InsertPerson(Person person)
-        {
-            int rowsAffected = this._db.Execute(@"insert into [Library].[dbo].[person]
-                                    ([birth_day],[first_name],[last_name],[middle_name]) 
-                                    values('@bithDay','@firstName','@lastName','@middleName')
-                                    select*from [Library].[dbo].[person] where person_id= SCOPE_IDENTITY()",
-                                    new
-                                    {
-                                        birthDay = person.birthDay,
-                                        firstName = person.firstName,
-                                        lastName = person.lastName,
-                                        middleName = person.middleName
-                                    });
-            if (rowsAffected > 0)
+            using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
-                return true;
+                var persons = _db.Query<LibraryCard>(string.Format(@"select b.*, a.*, d.*
+                                                                        from[Library].[dbo].[LibraryCard]
+                                                                        left join[Library].[dbo].[Book] b on b.[BookId] =[BookBookId]
+                                                                        left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = b.BookId
+                                                                        left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
+                                                                        left join[Library].[dbo].[Author] a on a.AuthorId = b.AuthorId
+                                                                        where PersonPersonId = {0}", Id)).ToList();
+                return persons;
             }
-
-            return false;
-
         }
 
-        public bool UpdatePerson(Person person)
+        public List<Person>  InsertPerson(Person person)
         {
-            int rowsAffected = this._db.Execute(
-                        @"update [Library].[dbo].[person] 
-                            set[birth_day] = '@bithDay',
-                            [first_name] = '@firstName',
-                            [last_name] = '@lastName',
-                            [middle_name] = '@middleName'
-                            where[person_id] =" + person.personId, person);
-
-            if (rowsAffected > 0)
+            using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
-                return true;
+                List<Person> NewPerson = _db.Query<Person>(string.Format(@"insert into [Library].[dbo].[Person]
+                                    ([BirthDay],[FirstName],[LastName],[MiddleName]) 
+                                    values('{0}','{1}','{2}','{3}')
+                                    select*from [Library].[dbo].[Person] where PersonId= SCOPE_IDENTITY()", 
+                                    person.BirthDay,
+                                    person.FirstName,
+                                    person.LastName,
+                                    person.MiddleName)).ToList();
+                return NewPerson;
             }
-
-            return false;
         }
 
-        public bool DeletePersonFIO(string fio)
+        public List<Person> UpdatePerson(Person person)
         {
-            int rowsAffected = this._db.Execute(@"DELETE FROM [Customer] WHERE first_Name+last_Name+middle_Name = @FIOperson",
-                new { FIOperson = fio });
-
-            if (rowsAffected > 0)
+            using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
-                return true;
-            }
+                List<Person> UpdatePerson = _db.Query<Person>(string.Format(@"update [Library].[dbo].[Person] 
+                                                set[BirthDay] = '{0}',
+                                                [FirstName] = '{1}',
+                                                [LastName] = '{2}',
+                                                [MiddleName] = '{3}'
+                                                where[PersonId] = {4}
+                                                select * from [Library].[dbo].[Person] where PersonId= ", 
+                                                person.BirthDay, 
+                                                person.FirstName,
+                                                person.LastName,
+                                                person.MiddleName, 
+                                                person.PersonId)).ToList();
 
-            return false;
+                    return UpdatePerson;
+            }
+        }
+
+        public bool DeletePersonFIO(Person person)
+        {
+            using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
+            {
+                int rowsAffected = _db.Execute(string.Format(@"DELETE FROM [Library].[dbo].[Person] 
+                                                    WHERE FirstName+LastName+MiddleName = '{0}'+'{1}'+'{2}'", 
+                                                    person.FirstName,
+                                                    person.LastName,
+                                                    person.MiddleName));
+
+                if (rowsAffected > 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
         }
 
         public bool DeletePersonId(int Id)
         {
-            int rowsAffected = this._db.Execute(@"DELETE FROM [Customer] WHERE CustomerID = @personId",
-                new { personId = Id });
-
-            if (rowsAffected > 0)
+            using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
-                return true;
-            }
+                int rowsAffected = _db.Execute(string.Format(@"DELETE FROM [Library].[dbo].[Person] 
+                                                                WHERE PersonId = {0}", Id));
 
-            return false;
+                if (rowsAffected > 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
         }
 
-        public bool GetBookPerson(int bookId, int personId)
+        public List<LibraryCard> GetBookPerson(int bookId, int personId)
         {
-            int rowsAffected = this._db.Execute(@"insert into [Library].[dbo].[library_card]
-                                    ([book_book_id],[person_person_id]) 
-                                    values('@bookbookId','@personpersonId')
-                                    select 'fio'=a.first_name+' '+a.last_name+' '+a.middle_name,
-                                    'bookName'=b.name
-                                    from  [Library].[dbo].[library_card]
-                                    left join [Library].[dbo].[person] a  on [person_id]=[person_person_id]
-                                    left join [Library].[dbo].[book] b on [book_id]=[book_book_id]
-                                    where person_person_id=@personId",
-                                                new { bookbookId= bookId, personpersonId= personId });
-            if (rowsAffected > 0)
+            using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
-                return true;
+                List<LibraryCard> GetBook = _db.Query<LibraryCard>(string.Format(@"insert into [Library].[dbo].[LibraryCard]
+                                    ([BookBookId],[PersonPersonId]) 
+                                    values('{0}','{1}')
+                                    select a.FirstName, a.LastName, a.MiddleName, b.Name
+                                    from  [Library].[dbo].[LibraryCard]
+                                    left join [Library].[dbo].[Person] a  on [PersonId]=[PersonPersonId]
+                                    left join [Library].[dbo].[Book] b on [BookId]=[BookBookId]
+                                    where PersonPersonId={1}", bookId, personId)).ToList();
+                return GetBook;
             }
-
-            return false;
         }
 
-        public bool PutBookPerson(int bookId, int personId)
+        public List<LibraryCard> PutBookPerson(int bookId, int personId)
         {
-            int rowsAffected = this._db.Execute(@"delete from [Library].[dbo].[library_card]
-                                        where book_book_id=@bookbookId and person_person_id=@personpersonId
-                                        select 'fio'=a.first_name+' '+a.last_name+' '+a.middle_name,
-                                        'bookName'=b.name
-                                        from  [Library].[dbo].[library_card]
-                                        left join [Library].[dbo].[person] a  on [person_id]=[person_person_id]
-                                        left join [Library].[dbo].[book] b on [book_id]=[book_book_id]
-                                        where person_person_id=@personId",
-                                                new { bookbookId = bookId, personpersonId = personId });
-            if (rowsAffected > 0)
+            using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
-                return true;
+                List<LibraryCard> PutBook = _db.Query<LibraryCard>(string.Format(@"delete from [Library].[dbo].[LibraryCard]
+                                        where BookBookId={0} and PersonPersonId={1}
+                                        select a.FirstName, a.LastName, a.MiddleName, b.Name
+                                        from  [Library].[dbo].[LibraryCard]
+                                        left join [Library].[dbo].[Person] a  on [PersonId]=[PersonPersonId]
+                                        left join [Library].[dbo].[Book] b on [BookId]=[BookBookId]
+                                        where PersonPersonId={1}",bookId, personId)).ToList();
+                return PutBook;
             }
-
-            return false;
         }
 
     }

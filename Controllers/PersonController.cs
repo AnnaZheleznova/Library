@@ -1,15 +1,11 @@
 ﻿using Library.DAL;
 using Library.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Library.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class PersonController : ControllerBase
     {
@@ -20,41 +16,69 @@ namespace Library.Controllers
             _ourPersonRepository = new PersonRepository();
         }
 
-        // GET: api/<HumanController>
-        [Route("person")]
+        [Route("person/{Id}")]
         [HttpGet]
-        public List<Person> Get()
+        public List<LibraryCard> Get(int Id)
         {
-            return _ourPersonRepository.GetPerson();
+            List<LibraryCard> persons = _ourPersonRepository.GetPerson(Id);
+            return persons;
         }
 
+        [Route("person/{action}")]
         [HttpPost]
-        public bool Post([FromBody] Person ourPerson)
+        public List<Person> Post([FromBody] Person ourPerson)
         {
-            //return true;
-            return _ourPersonRepository.InsertPerson(ourPerson);
+            List<Person> persons = _ourPersonRepository.InsertPerson(ourPerson);
+            return persons;
         }
 
-        [HttpPut]
-        public bool Put([FromBody] Person ourPerson)
+        [Route("person/{action}")]
+        [HttpPost]
+        public List<Person> Update([FromBody] Person ourPerson )
         {
-            return _ourPersonRepository.UpdatePerson(ourPerson);
+            List<Person> persons= _ourPersonRepository.UpdatePerson(ourPerson);
+            return persons;
         }
 
-        [Route("Customers/{fio}")]
+        [Route("person/{action}")]
         [HttpDelete]
-        public bool Delete(string fio)
+        public ActionResult<Person> Delete([FromBody] Person ourPerson)
         {
-            return _ourPersonRepository.DeletePersonFIO(fio);
+            bool result = _ourPersonRepository.DeletePersonFIO(ourPerson);
+            if (result == true)
+            {
+                return Ok();
+            }
+            return BadRequest();
         }
 
-
-
-        [Route("Customers/{id}")]
+        [Route("person/{action}/{Id}")]
         [HttpDelete]
-        public bool Delete(int id)
+        public ActionResult<Person> Delete(int id)
         {
-            return _ourPersonRepository.DeletePersonId(id);
+            bool result = _ourPersonRepository.DeletePersonId(id);
+            if (result == true)
+            {
+                return Ok();
+            }
+            return BadRequest();
         }
+
+        [Route("person/getbookperson/{bookId}/{personId}")]
+        [HttpPost]
+        public List<LibraryCard> GetBookPerson(int bookId, int personId)
+        {
+            List<LibraryCard> persons = _ourPersonRepository.GetBookPerson(bookId,personId);
+            return persons;
+        }
+
+        [Route("person/PutBookPerson/{bookId}/{personId}")]
+        [HttpDelete]
+        public List<LibraryCard> PutBookPerson(int bookId, int personId)
+        {
+            List<LibraryCard> persons = _ourPersonRepository.PutBookPerson(bookId,personId);
+            return persons;
+        }
+
     }
 }

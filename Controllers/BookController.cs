@@ -5,39 +5,53 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using Library.DAL;
+
 namespace Library.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class BookController : ControllerBase
     {
-        
-        // GET: api/book
-        [HttpGet]
-        public ActionResult<IEnumerable<Book>> Get()
+        private BookRepository _ourBookRepository;
+
+        public BookController()
         {
-            return  Ok();
+            _ourBookRepository = new BookRepository();
         }
 
-        // GET api/book/2
-        [HttpGet("{author}")]
-        public ActionResult<Book> Get(string author)
-        {
-            return Ok();
-        }
-
-        // POST api/book
+        [Route("book/{action}")]
         [HttpPost]
-        public ActionResult<IEnumerable<Book>> Post(Book book)
+        public List<LibraryCard> Post(LibraryCard libraryCard)
         {
-            return Ok();
+            List<LibraryCard> books = _ourBookRepository.InsertBook(libraryCard);
+            return books;
         }
 
-        // DELETE api/<HumanController>/5
-        [HttpDelete("{author}/{name}")]
-        public ActionResult<Book> Delete(string Author, string Name)
+        [Route("book/{action}/{Id}")]
+        [HttpDelete]
+        public ActionResult<Book> Delete(int Id)
         {
-            return Ok();
+            bool result = _ourBookRepository.DeleteBook(Id);
+            if (result == true) { return Ok(); }
+            return BadRequest();
         }
+
+        [Route("book/byAuthor")]
+        [HttpGet]
+        public List<Book> GetByAuthor([FromBody] Author author)
+        {
+            List<Book> result = _ourBookRepository.AllBookByAuthor(author);
+            return  result;
+        }
+
+        [Route("book/byGenre")]
+        [HttpGet]
+        public List<Book> GetByGenre([FromBody] Genre genre)
+        {
+            List<Book> result = _ourBookRepository.AllBookByGenre(genre);
+            return result;
+        }
+
     }
 }

@@ -11,42 +11,34 @@ namespace Library.DAL
 {
     public class BookRepository : IBookRepository
     {
-        public List<LibraryCard> AllBookByAuthor(Author author)
+        public List<Book> AllBookByAuthor(Author author)
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
-                string AuthorId = @"select AuthorId from[Library].[dbo].[Author] where FirstName=@FirstName and LastName=@LastName and MiddleName=@MiddleName";
-                int Id =(int) _db.ExecuteScalar(AuthorId,author);
+                string AuthorId = string.Format(@"select AuthorId from[Library].[dbo].[Author] 
+                                                    where FirstName like '{0}' and LastName like '{1}' and MiddleName like '{2}'",
+                    author.FirstName,author.LastName,author.MiddleName);
+                int Id = (int)_db.ExecuteScalar(AuthorId);
 
-                string result = string.Format(@"select a.[Name],
-                                    b.FirstName, b.LastName, b.MiddleName,
-                                    d.GenreName
-                                    from [Library].[dbo].[Book] a
-                                    left join[Library].[dbo].[Author] b on b.AuthorId = a.AuthorId
-                                    left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = a.BookId
-                                    left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
-                                    where a.AuthorId = {0} ",Id);
-                List<LibraryCard> AllBooksByAuthor = _db.Query<LibraryCard>(result).ToList();
+                string result = string.Format(@"select * from [Library].[dbo].[Book] a
+                                                where a.AuthorId = {0} ",Id);
+                List<Book> AllBooksByAuthor = _db.Query<Book>(result).ToList();
                 return AllBooksByAuthor;
             }
         }
 
-        public List<LibraryCard> AllBookByGenre(Genre genre)
+        public List<Book> AllBookByGenre(Genre genre)
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
-                string GenreId = @"select [GenreId] from[Library].[dbo].[Genre] where [GenreName]=@GenreName";
+                string GenreId = string.Format(@"select [GenreId] from[Library].[dbo].[Genre] where [GenreName] like '{0}'",genre.genreName);
                 int Id = (int)_db.ExecuteScalar(GenreId, genre);
 
-                string result = string.Format(@"select a.[Name],
-                                    b.FirstName, b.LastName, b.MiddleName,
-                                    d.GenreName
-                                    from [Library].[dbo].[Book] a
-                                    left join[Library].[dbo].[Author] b on b.AuthorId = a.AuthorId
+                string result = string.Format(@"select * from [Library].[dbo].[Book] a
                                     left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = a.BookId
                                     left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
-                                    where a.AuthorId = {0} ", Id);
-                List<LibraryCard> AllBooksByGenre = _db.Query<LibraryCard>(result).ToList();
+                                    where d.GenreId = {0} ", Id);
+                List<Book> AllBooksByGenre = _db.Query<Book>(result).ToList();
                 return AllBooksByGenre;
             }
         }
@@ -56,63 +48,77 @@ namespace Library.DAL
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
                 string search =string.Format( @"select count([BookBookId]) from [dbo].[LibraryCard] where [BookBookId]={0}",id);
+
                 int row = (int)_db.ExecuteScalar(search);
-                if (row == 0)
+                if (row <= 0)
                 {
-                    string delete = string.Format(@"delete from [Library].[dbo].[Book] where [BookId]={0}", id);
-                    int RowDelete = _db.Execute(delete);
+                    string searchGenre = string.Format(@"select [GenreId] from [Library].[dbo].[BookGenreLink] where [BookId]={0}", id);
+                    int searchtGenre = (int)_db.ExecuteScalar(searchGenre);//Id жанра
+                    string delete = string.Format(@"delete from [Library].[dbo].[Book] where [BookId]={0}
+                                    delete from [Library].[dbo].[BookGenreLink] where BookId={0} and GenreId={1}", id,searchtGenre);
+                    _db.Execute(delete);
                     return true;
                 }
                 return false;
             }
         }
 
-        public List<LibraryCard> InsertBook(Book book, Author author, Genre genre)
+        public List<LibraryCard> InsertBook(LibraryCard libraryCard)
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
-                string AuthorBook = @"select count(*) 
+                string AuthorBook = string.Format(@"select count(*) 
                                 from[Library].[dbo].[Author]
-                                where[FirstName] like '@FirstName' and[LastName] like'@LastName' and[MiddleName] like '@MiddleName'";
-                int rows = (int)_db.ExecuteScalar(AuthorBook);
+                                where[FirstName] like '{0}' and[LastName] like'{1}' and[MiddleName] like '{2}'",
+                                libraryCard.FirstName,
+                                libraryCard.LastName,
+                                libraryCard.MiddleName);
+                int rows =(int) _db.ExecuteScalar(AuthorBook);//существуют ли строчки с таким автором
 
-                if (rows==0)
+                if (rows<=0)
                 {
-                    string InsertAuthor = @"insert into [Library].[dbo].[Author] ([FirstName],[LastName],[MiddleName]) 
-                                        values('@FirstName', '@LastName', '@MiddleName')
-                                        select[AuthorId] = SCOPE_IDENTITY()";
-                    rows = (int)_db.ExecuteScalar(InsertAuthor);
+                    string InsertAuthor = string.Format(@"insert into [Library].[dbo].[Author] ([FirstName],[LastName],[MiddleName]) 
+                                        values('{0}', '{1}', '{2}')", libraryCard.FirstName, libraryCard.LastName, libraryCard.MiddleName);
+                    _db.Execute(InsertAuthor);
                 }
-                string ResultAuthor = @"select [AuthorId] 
+                string ResultAuthor =string.Format( @"select [AuthorId] 
                                 from[Library].[dbo].[Author]
-                                where[FirstName] like '@FirstName' and[LastName] like'@LastName' and[MiddleName] like '@MiddleName'";
-                int ResultsAuthor = (int)_db.ExecuteScalar(ResultAuthor);
+                                where[FirstName] like '{0}' and[LastName] like'{1}' and[MiddleName] like '{2}'",
+                                libraryCard.FirstName,
+                                libraryCard.LastName,
+                                libraryCard.MiddleName);
+                int ResultsAuthor =(int) _db.ExecuteScalar(ResultAuthor);//Id автора
 
-                string GenreBook = @"select count(*) 
+                string GenreBook = string.Format(@"select count(*) 
 	                                    from [Library].[dbo].[Genre]
-	                                    where [GenreName] like '@GenreName'";
-                rows = (int)_db.ExecuteScalar(GenreBook);
-                if (rows == 0)
+	                                    where [GenreName] like '{0}'", libraryCard.GenreName);
+                rows =(int) _db.ExecuteScalar(GenreBook);//существуют ли строчки с таким жанром
+                if (rows <=0)
                 {
-                    string InsertGenre = @"insert into [Library].[dbo].[Genre] ([GenreName]) values('@GenreName')
-	                                        select [GenreId]=SCOPE_IDENTITY()";
-                    rows = (int)_db.ExecuteScalar(InsertGenre);
+                    string InsertGenre = string.Format(@"insert into [Library].[dbo].[Genre] ([GenreName]) values('{0}')", libraryCard.GenreName);
+                    _db.Execute(InsertGenre);
                 }
 
-                string ResultGenre = @"select [GenreId] 
+                string ResultGenre = string.Format(@"select [GenreId] 
                                 from[Library].[dbo].[Genre]
-                                where[GenreName] like '@GenreName'";
-                int resultGenre= (int)_db.ExecuteScalar(ResultGenre);
+                                where[GenreName] like '{0}'", libraryCard.GenreName);
+                int resultGenre=(int) _db.ExecuteScalar(ResultGenre);//Id жанра
 
                 string InsertBook = string.Format(@"insert into [Library].[dbo].[Book] ([Name],[AuthorId]) 
-                                        values('@Name',{0})
-                                        select [BookId]=SCOPE_IDENTITY()", ResultsAuthor);
-                int resultBook = (int)_db.ExecuteScalar(InsertBook);
+                                        values('{0}',{1})
+                                        select [BookId]=SCOPE_IDENTITY()", libraryCard.Name, ResultsAuthor);
+                _db.Execute(InsertBook);
+
+                string ResultBook = string.Format(@"select [BookId] 
+                                from[Library].[dbo].[Book]
+                                where[Name] like '{0}' and AuthorId={1}", libraryCard.Name, ResultsAuthor);
+                int resultBook = (int)_db.ExecuteScalar(ResultBook);//Id книги
 
                 string BookGenre = string.Format(@"insert into [Library].[dbo].[BookGenreLink] ([BookId],[GenreId]) values({0},{1})", 
-                    resultBook,
-                    resultGenre);
+                                                                                                                        resultBook,
+                                                                                                                        resultGenre);
 
+                _db.Execute(BookGenre);
                 string result = string.Format(@"select a.[Name],
                                                 b.FirstName, b.LastName, b.MiddleName,
                                                 d.GenreName
@@ -139,7 +145,7 @@ namespace Library.DAL
                                         left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = a.BookId
                                         left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
                                         where a.BookId = 5 and d.GenreName like'@GenreName'";
-                int row = _db.Execute(genresearch);
+                _db.Execute(genresearch);
 
 
                 string genre = @"select a.[Name],
@@ -150,6 +156,7 @@ namespace Library.DAL
                                     left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = a.BookId
                                     left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
                                     where a.BookId = @BookId";
+                _db.Execute(genre);
                 return true;
             }
         }

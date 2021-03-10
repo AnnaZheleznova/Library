@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Library.DAL;
+using Library.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,40 +10,44 @@ using System.Threading.Tasks;
 
 namespace Library.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class AuthorController : ControllerBase
     {
-        // GET: api/<AuthorController>
+        private AuthorRepository _ourAuthorRepository;
+
+        public AuthorController()
+        {
+            _ourAuthorRepository = new AuthorRepository();
+        }
+
+        [Route("author/{action}")]
         [HttpGet]
-        public IEnumerable<string> Get()
+        public List<Author> Get()
         {
-            return new string[] { "value1", "value2" };
+            List<Author> authors = _ourAuthorRepository.GetAllAuthor();
+            return authors;
         }
 
-        // GET api/<AuthorController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [Route("author/bookbyauthor")]
+        [HttpGet]
+        public List<LibraryCard> GetBook(Author author)
         {
-            return "value";
+            List<LibraryCard> authors = _ourAuthorRepository.GetAllBookByAuthor(author);
+            return authors;
         }
 
-        // POST api/<AuthorController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
 
-        // PUT api/<AuthorController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [Route("author/{action}")]
+        [HttpDelete]
+        public ActionResult<Author> Delete([FromBody] Author author)
         {
-        }
-
-        // DELETE api/<AuthorController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            bool authors = _ourAuthorRepository.DeleteAuthor(author);
+            if(authors== true)
+            {
+                return Ok();
+            }
+            return BadRequest("Нельзя удалить автора пока есть книги");
         }
     }
 }

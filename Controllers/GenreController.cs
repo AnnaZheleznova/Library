@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Library.DAL;
+using Library.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,40 +10,44 @@ using System.Threading.Tasks;
 
 namespace Library.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class GenreController : ControllerBase
     {
-        // GET: api/<GenreController>
+        private GenreRepository _ourGenreRepository;
+
+        public GenreController()
+        {
+            _ourGenreRepository = new GenreRepository();
+        }
+
+
+        [Route("genre/{action}")]
         [HttpGet]
-        public IEnumerable<string> Get()
+        public List<Genre> Get()
         {
-            return new string[] { "value1", "value2" };
+            List<Genre> genres = _ourGenreRepository.GetGenres();
+            return genres;
         }
 
-        // GET api/<GenreController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [Route("genre/statistic")]
+        [HttpGet]
+        public int Get(Genre genre)
         {
-            return "value";
+            int genres = _ourGenreRepository.Statistic(genre);
+            return genres;
         }
 
-        // POST api/<GenreController>
+        [Route("genre/{action}")]
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult<Genre> Post([FromBody] Genre genre)
         {
-        }
-
-        // PUT api/<GenreController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<GenreController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            bool genres = _ourGenreRepository.AddGenres(genre);
+            if(genres==true)
+            {
+                return Ok();
+            }
+            return BadRequest();
         }
     }
 }

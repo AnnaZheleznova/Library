@@ -9,8 +9,8 @@ namespace Library.DAL
     interface IAuthorRepository
     {
         List<Author> GetAllAuthor();
-        List<Author> GetAllBookByAuthor();
+        List<LibraryCard> GetAllBookByAuthor(Author author);
         bool AddAuthor();
-        bool DeleteAuthor();
+        bool DeleteAuthor(Author author);
     }
 }

@@ -11,7 +11,7 @@ namespace Library.DAL
 {
     public class GenreRepository : IGenreRepository
     {
-        public bool AddGenres(Genre genre)
+        public bool AddGenres(Genre genre)//6.4.2
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -21,7 +21,7 @@ namespace Library.DAL
             }
         }
 
-        public List<Genre> GetGenres()
+        public List<Genre> GetGenres()//6.4.1
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -31,7 +31,7 @@ namespace Library.DAL
             }
         }
 
-        public int Statistic(Genre genre)
+        public int Statistic(Genre genre)//6.4.3
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {

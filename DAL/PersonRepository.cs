@@ -13,7 +13,7 @@ namespace Library.DAL
 {
     public class PersonRepository : IPersonRepository
     {
-        public List<LibraryCard> GetPerson(int Id)
+        public List<LibraryCard> GetPersonBooks(int Id)//6.1.5
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -28,7 +28,7 @@ namespace Library.DAL
             }
         }
 
-        public List<Person>  InsertPerson(Person person)
+        public List<Person>  InsertPerson(Person person)//6.1.1
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -44,7 +44,7 @@ namespace Library.DAL
             }
         }
 
-        public List<Person> UpdatePerson(Person person)
+        public List<Person> UpdatePerson(Person person)//6.1.2
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -65,7 +65,7 @@ namespace Library.DAL
             }
         }
 
-        public bool DeletePersonFIO(Person person)
+        public bool DeletePersonFIO(Person person)//6.1.4
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -84,7 +84,7 @@ namespace Library.DAL
             }
         }
 
-        public bool DeletePersonId(int Id)
+        public bool DeletePersonId(int Id)//6.1.3
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -100,7 +100,7 @@ namespace Library.DAL
             }
         }
 
-        public List<LibraryCard> GetBookPerson(int bookId, int personId)
+        public List<LibraryCard> InsertLibraryCard(int bookId, int personId)//6.1.6
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -116,7 +116,7 @@ namespace Library.DAL
             }
         }
 
-        public List<LibraryCard> PutBookPerson(int bookId, int personId)
+        public List<LibraryCard> DeleteLibraryCard(int bookId, int personId)//6.1.7
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {

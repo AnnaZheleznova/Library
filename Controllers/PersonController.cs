@@ -20,7 +20,7 @@ namespace Library.Controllers
         [HttpGet]
         public List<LibraryCard> Get(int Id)
         {
-            List<LibraryCard> persons = _ourPersonRepository.GetPerson(Id);
+            List<LibraryCard> persons = _ourPersonRepository.GetPersonBooks(Id);
             return persons;
         }
 
@@ -68,7 +68,7 @@ namespace Library.Controllers
         [HttpPost]
         public List<LibraryCard> GetBookPerson(int bookId, int personId)
         {
-            List<LibraryCard> persons = _ourPersonRepository.GetBookPerson(bookId,personId);
+            List<LibraryCard> persons = _ourPersonRepository.InsertLibraryCard(bookId,personId);
             return persons;
         }
 
@@ -76,7 +76,7 @@ namespace Library.Controllers
         [HttpDelete]
         public List<LibraryCard> PutBookPerson(int bookId, int personId)
         {
-            List<LibraryCard> persons = _ourPersonRepository.PutBookPerson(bookId,personId);
+            List<LibraryCard> persons = _ourPersonRepository.DeleteLibraryCard(bookId,personId);
             return persons;
         }
 

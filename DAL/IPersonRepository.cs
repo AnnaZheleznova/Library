@@ -8,12 +8,12 @@ namespace Library.DAL
 {
     internal interface IPersonRepository
     {
-        List<LibraryCard > GetPerson(int Id);
+        List<LibraryCard > GetPersonBooks(int Id);
         List<Person> InsertPerson(Person person);
         List<Person> UpdatePerson(Person person);
         bool DeletePersonId(int Id);
         bool DeletePersonFIO(Person person);
-        List<LibraryCard> GetBookPerson(int bookId, int personId);
-        List<LibraryCard> PutBookPerson(int bookId, int personId);
+        List<LibraryCard> InsertLibraryCard(int bookId, int personId);
+        List<LibraryCard> DeleteLibraryCard(int bookId, int personId);
     }
 }

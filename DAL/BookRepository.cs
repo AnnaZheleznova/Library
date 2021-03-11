@@ -11,7 +11,7 @@ namespace Library.DAL
 {
     public class BookRepository : IBookRepository
     {
-        public List<Book> AllBookByAuthor(Author author)
+        public List<Book> AllBookByAuthor(Author author)//6.2.4
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -27,7 +27,7 @@ namespace Library.DAL
             }
         }
 
-        public List<Book> AllBookByGenre(Genre genre)
+        public List<Book> AllBookByGenre(Genre genre)//6.2.5
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -43,7 +43,7 @@ namespace Library.DAL
             }
         }
 
-        public bool DeleteBook(int id)
+        public bool DeleteBook(int id)//6.2.2
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -63,7 +63,7 @@ namespace Library.DAL
             }
         }
 
-        public List<LibraryCard> InsertBook(LibraryCard libraryCard)
+        public List<LibraryCard> InsertBook(LibraryCard libraryCard)//6.2.1
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -135,7 +135,7 @@ namespace Library.DAL
             }
         }
 
-        public bool NewGenre(Book book)
+        public bool NewGenre(Book book)//6.2.3
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {

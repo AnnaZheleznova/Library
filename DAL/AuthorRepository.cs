@@ -11,12 +11,12 @@ namespace Library.DAL
 {
     public class AuthorRepository : IAuthorRepository
     {
-        public bool AddAuthor()
+        public bool AddAuthor()//6.3.3
         {
             throw new NotImplementedException();
         }
 
-        public bool DeleteAuthor(Author author)
+        public bool DeleteAuthor(Author author)//6.3.4
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -38,7 +38,7 @@ namespace Library.DAL
             }
         }
 
-        public List<Author> GetAllAuthor()
+        public List<Author> GetAllAuthor()//6.3.1
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {
@@ -48,7 +48,7 @@ namespace Library.DAL
             }
         }
 
-        public List<LibraryCard> GetAllBookByAuthor(Author author)
+        public List<LibraryCard> GetAllBookByAuthor(Author author)//6.3.2
         {
             using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
             {

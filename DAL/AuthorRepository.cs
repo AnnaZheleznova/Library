@@ -1,19 +1,34 @@
-﻿using System;
+﻿using Dapper;
+using Library.Models;
+using Microsoft.Data.SqlClient;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
-using Library.Models;
-using Microsoft.Data.SqlClient;
 
 namespace Library.DAL
 {
     public class AuthorRepository : IAuthorRepository
     {
-        public bool AddAuthor()//6.3.3
+        public List<Author> AddAuthor(Author author)//6.3.3
         {
-            throw new NotImplementedException();
+            using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
+            {
+                string addAuthor = string.Format(@"insert into [Library].[dbo].[Author] (FirstName,LastName,MiddleName) values ('{0}','{1}','{2}') select AuthorId=SCOPE_IDENTITY()",
+                                                                                author.FirstName, author.LastName, author.MiddleName);
+
+                int id =(int)_db.Execute(addAuthor);
+                if (author.books.ElementAt(0).name != null)
+                {
+                    string addBook = string.Format(@"insert into [Library].[dbo].[Book] (Name, AuthorId) values ('{0}',{1})", author.books.ElementAt(0).name, id);
+                    _db.Execute(addBook);
+                }
+                string result = string.Format(@"select * from [Library].[dbo].[Book] b
+                                                left join [Library].[dbo].[Author] a on a.AuthorId=b.AuthorId 
+                                                where a.AuthorId={0}",id);
+                List<Author> authors=_db.Query<Author>(result).ToList();
+                return authors;
+            }
         }
 
         public bool DeleteAuthor(Author author)//6.3.4

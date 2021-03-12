@@ -1,8 +1,5 @@
 ﻿using Library.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Library.DAL
 {
@@ -10,7 +7,7 @@ namespace Library.DAL
     {
         List<Author> GetAllAuthor();
         List<LibraryCard> GetAllBookByAuthor(Author author);
-        bool AddAuthor();
+        List<Author> AddAuthor(Author author);
         bool DeleteAuthor(Author author);
     }
 }

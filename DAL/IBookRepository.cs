@@ -1,8 +1,5 @@
 ﻿using Library.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Library.DAL
 {
@@ -10,7 +7,7 @@ namespace Library.DAL
     {
         List<LibraryCard> InsertBook(LibraryCard libraryCard);
         bool DeleteBook(int id);
-        bool NewGenre(Book book);
+        List<LibraryCard> NewGenre(Book book);
         List<Book> AllBookByAuthor(Author author);
         List<Book> AllBookByGenre(Genre genre);
 

@@ -1,13 +1,9 @@
-﻿using Library.Models;
+﻿using Dapper;
+using Library.Models;
 using Microsoft.Data.SqlClient;
-using Microsoft.IdentityModel.Protocols;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
-using System.Configuration;
 
 namespace Library.DAL
 {

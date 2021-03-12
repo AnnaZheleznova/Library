@@ -1,11 +1,7 @@
-﻿using Library.Models;
+﻿using Library.DAL;
+using Library.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
-using Library.DAL;
 
 namespace Library.Controllers
 {
@@ -52,6 +48,15 @@ namespace Library.Controllers
             List<Book> result = _ourBookRepository.AllBookByGenre(genre);
             return result;
         }
+
+        [Route("book/{action}")]
+        [HttpPut]
+        public List<LibraryCard> PutGenre(Book book)
+        {
+            List<LibraryCard> result = _ourBookRepository.NewGenre(book);
+            return result;
+        }
+
 
     }
 }

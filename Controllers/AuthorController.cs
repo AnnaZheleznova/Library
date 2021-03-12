@@ -1,12 +1,8 @@
 ﻿using Library.DAL;
 using Library.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Library.Controllers
 {
@@ -43,11 +39,20 @@ namespace Library.Controllers
         public ActionResult<Author> Delete([FromBody] Author author)
         {
             bool authors = _ourAuthorRepository.DeleteAuthor(author);
-            if(authors== true)
+            if (authors == true)
             {
                 return Ok();
             }
             return BadRequest("Нельзя удалить автора пока есть книги");
         }
+
+        [Route("author/addauthor")]
+        [HttpPost]
+        public List<Author> AddAuthor([FromBody] Author author)
+        {
+            List<Author> authors = _ourAuthorRepository.AddAuthor(author);
+            return authors;
+        }
+
     }
 }

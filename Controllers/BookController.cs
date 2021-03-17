@@ -1,4 +1,5 @@
-﻿using Library.DAL;
+﻿using Library.Context;
+using Library.DAL;
 using Library.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -9,11 +10,13 @@ namespace Library.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
+        private readonly DataContext _context;
+
         private BookRepository _ourBookRepository;
 
-        public BookController()
+        public BookController(DataContext context)
         {
-            _ourBookRepository = new BookRepository();
+            _context=context;
         }
 
         [Route("book/{action}")]

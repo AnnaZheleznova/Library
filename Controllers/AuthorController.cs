@@ -1,8 +1,10 @@
-﻿using Library.DAL;
+﻿using Library.Context;
+using Library.DAL;
 using Library.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-
+using System.Linq;
+using System.Data;
 
 namespace Library.Controllers
 {
@@ -10,48 +12,100 @@ namespace Library.Controllers
     [ApiController]
     public class AuthorController : ControllerBase
     {
-        private AuthorRepository _ourAuthorRepository;
+        private readonly DataContext _context;
 
-        public AuthorController()
+        public AuthorController(DataContext context)
         {
-            _ourAuthorRepository = new AuthorRepository();
+            _context = context;
+            if (!_context.Authors.Any())
+            {
+                Author authors1 = new Author { FirstName = "Лев", LastName = "Толстой", MiddleName = "Николаевич" };
+                Author authors2 = new Author { FirstName = "Фёдор", LastName = "Достоевский", MiddleName = "Михайлович" };
+                Author authors3 = new Author { FirstName = "Иван", LastName = "Тургенев", MiddleName = "Сергеевич" };
+                Author authors4 = new Author { FirstName = "Михаил", LastName = "Булгаков", MiddleName = "Афанасьевич" };
+                Author authors5 = new Author { FirstName = "Иван", LastName = "Бунин", MiddleName = "Алексеевич" };
+                Author authors6 = new Author { FirstName = "Артур", LastName = "Дойл", MiddleName = "Конан" };
+                Author authors7 = new Author { FirstName = "Фрэнсис", LastName = "Фицджеральд", MiddleName = "Скотт" };
+                _context.Authors.AddRange(authors1, authors2, authors3, authors4, authors5, authors6, authors7);
+
+                Book book1 = new Book { Name = "Война и мир", Author=authors1 };
+                Book book2 = new Book { Name = "Преступление и наказание",Author=authors2 };
+                Book book3 = new Book { Name = "Отцы и дети",Author=authors3 };
+                Book book4 = new Book { Name = "Морфий",Author=authors4 };
+                Book book5 = new Book { Name = "Темные аллеи",Author=authors5 };
+                Book book6 = new Book { Name = "Приключения Шерлока Холмса",Author=authors6 };
+                Book book7 = new Book { Name = "Ночь нежна",Author=authors7 };
+                _context.Books.AddRange(book1, book2, book3, book4, book5, book6, book7);
+
+                Genre genre1 = new Genre { GenreName = "Роман" };
+                Genre genre2 = new Genre { GenreName = "Детектив" };
+                Genre genre3 = new Genre { GenreName = "Рассказ" };
+                Genre genre4 = new Genre { GenreName = "Сборник рассказов" };
+                _context.Genres.AddRange(genre1, genre2, genre3, genre4);
+
+                book1.BookGenres.Add(new BookGenre { Book = book1, Genre = genre1 });
+                book2.BookGenres.Add(new BookGenre { Book = book2, Genre = genre1 });
+                book3.BookGenres.Add(new BookGenre { Book = book3, Genre = genre1 });
+                book4.BookGenres.Add(new BookGenre { Book = book4, Genre = genre3 });
+                book5.BookGenres.Add(new BookGenre { Book = book5, Genre = genre4 });
+                book6.BookGenres.Add(new BookGenre { Book = book6, Genre = genre2 });
+                book6.BookGenres.Add(new BookGenre { Book = book6, Genre = genre4 });
+                book7.BookGenres.Add(new BookGenre { Book = book7, Genre = genre1 });
+
+                Person person1 = new Person { FirstName = "Светлана", LastName = "Волкова", MiddleName = "Петровна", BirthDay = new System.DateTime(1998,03,04) };
+                Person person2 = new Person { FirstName = "Петр", LastName = "Калужин", MiddleName = "Денисович", BirthDay = new System.DateTime(1995,10,20) };
+                Person person3 = new Person { FirstName = "Василий", LastName = "Иванов", MiddleName = "Викторович", BirthDay = new System.DateTime(1996,07,13) };
+                Person person4 = new Person { FirstName = "Мария", LastName = "Кузнецова", MiddleName = "Александровна", BirthDay = new System.DateTime(1997,06,14) };
+                _context.People.AddRange(person1, person2, person3, person4);
+
+                person1.LibraryCards.Add(new LibraryCard { Book = book3, Person = person1 });
+                person2.LibraryCards.Add(new LibraryCard { Book = book5, Person = person2 });
+                person3.LibraryCards.Add(new LibraryCard { Book = book2, Person = person3 });
+                person4.LibraryCards.Add(new LibraryCard { Book = book4, Person = person4 });
+                person2.LibraryCards.Add(new LibraryCard { Book = book7, Person = person2 });
+                _context.SaveChanges();
+            }
         }
 
         [Route("author/{action}")]
         [HttpGet]
-        public List<Author> Get()
+        public ActionResult<IEnumerable<Author>> Get()
         {
-            List<Author> authors = _ourAuthorRepository.GetAllAuthor();
-            return authors;
+            var authors = _context.Authors.Select(u=>u.FirstName+" "+u.LastName+" "+u.MiddleName).ToList();
+            return Ok(authors);
         }
 
         [Route("author/bookbyauthor")]
         [HttpGet]
-        public List<LibraryCard> GetBook(Author author)
+        public IActionResult GetBook(Author author)
         {
-            List<LibraryCard> authors = _ourAuthorRepository.GetAllBookByAuthor(author);
-            return authors;
+            var authors = _context.Authors.Where(u=>u.FirstName==author.FirstName && u.LastName==author.LastName && u.MiddleName==author.MiddleName).
+                                            Select(u => u.FirstName + " " + u.LastName + " " + u.MiddleName+" ").ToList();
+            return Ok(authors);
         }
 
 
         [Route("author/{action}")]
         [HttpDelete]
-        public ActionResult<Author> Delete([FromBody] Author author)
+        public IActionResult Delete([FromBody] Author author)
         {
-            bool authors = _ourAuthorRepository.DeleteAuthor(author);
-            if (authors == true)
-            {
-                return Ok();
-            }
+            var authors = _context.Authors.Find(author.FirstName+author.LastName+author.MiddleName);
             return BadRequest("Нельзя удалить автора пока есть книги");
         }
 
         [Route("author/addauthor")]
         [HttpPost]
-        public List<Author> AddAuthor([FromBody] Author author)
+        public IActionResult AddAuthor([FromBody] Author author)
         {
-            List<Author> authors = _ourAuthorRepository.AddAuthor(author);
-            return authors;
+            var authors = new Author
+            {
+                FirstName = author.FirstName,
+                LastName = author.LastName,
+                MiddleName = author.MiddleName,
+            };
+            _context.Authors.Add(authors);
+            _context.SaveChanges();
+            return Ok(authors);
         }
 
     }

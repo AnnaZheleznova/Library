@@ -1,7 +1,10 @@
-﻿using Library.DAL;
+﻿using Library.Context;
+using Library.DAL;
 using Library.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Library.Controllers
 {
@@ -9,27 +12,36 @@ namespace Library.Controllers
     [ApiController]
     public class PersonController : ControllerBase
     {
+        private DataContext _context;
         private PersonRepository _ourPersonRepository;
 
-        public PersonController()
+        public PersonController(DataContext context)
         {
-            _ourPersonRepository = new PersonRepository();
+            _context = context;
         }
 
         [Route("person/{Id}")]
         [HttpGet]
-        public List<LibraryCard> Get(int Id)
+        public ActionResult Get(int Id)
         {
-            List<LibraryCard> persons = _ourPersonRepository.GetPersonBooks(Id);
-            return persons;
+            var persons = _context.People.Include(c => c.LibraryCards).ThenInclude(sc => sc.Book).Where(p => p.Id == Id).ToList();
+            return Ok(persons);
         }
 
         [Route("person/{action}")]
         [HttpPost]
-        public List<Person> Post([FromBody] Person ourPerson)
+        public ActionResult Post([FromBody] Person ourPerson)
         {
-            List<Person> persons = _ourPersonRepository.InsertPerson(ourPerson);
-            return persons;
+            var persons = new Person
+            {
+                FirstName = ourPerson.FirstName,
+                LastName = ourPerson.LastName,
+                MiddleName = ourPerson.MiddleName,
+                BirthDay = ourPerson.BirthDay
+            };
+            _context.People.Add(persons);
+            _context.SaveChanges();
+            return Ok(persons);
         }
 
         [Route("person/{action}")]
@@ -66,10 +78,11 @@ namespace Library.Controllers
 
         [Route("person/getbookperson/{bookId}/{personId}")]
         [HttpPost]
-        public List<LibraryCard> GetBookPerson(int bookId, int personId)
+        public ActionResult GetBookPerson(int bookId, int personId)
         {
-            List<LibraryCard> persons = _ourPersonRepository.InsertLibraryCard(bookId,personId);
-            return persons;
+            var persons = new { BookId=bookId,PersonId=personId };
+            
+            return Ok(persons);
         }
 
         [Route("person/PutBookPerson/{bookId}/{personId}")]

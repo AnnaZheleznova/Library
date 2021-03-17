@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Library.Models
 {
     public class Person
     {
-        public int PersonId { get; set; }
+        public int Id { get; set; }
 
         public string FirstName { get; set; }
 
@@ -13,5 +14,10 @@ namespace Library.Models
         public string MiddleName { get; set; }
 
         public DateTime BirthDay { get; set; }
+        public List<LibraryCard> LibraryCards { get; set; }
+        public Person()
+        {
+            LibraryCards = new List<LibraryCard>();
+        }
     }
 }

@@ -1,14 +1,11 @@
+using Library.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Library.Models;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.SqlServer;
+using Microsoft.Extensions.DependencyInjection;
+using System.Configuration;
 
 namespace Library
 {
@@ -19,6 +16,9 @@ namespace Library
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers(); // используем контроллеры без представлений
+
+
+            services.AddDbContext<DataContext>(options=>options.UseSqlServer("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -28,7 +28,7 @@ namespace Library.Controllers
             return Ok(persons);
         }
 
-        [Route("person/{action}")]
+        [Route("person/post")]
         [HttpPost]
         public ActionResult Post([FromBody] Person ourPerson)
         {
@@ -44,7 +44,7 @@ namespace Library.Controllers
             return Ok(persons);
         }
 
-        [Route("person/{action}")]
+        [Route("person/update")]
         [HttpPost]
         public List<Person> Update([FromBody] Person ourPerson )
         {
@@ -52,7 +52,7 @@ namespace Library.Controllers
             return persons;
         }
 
-        [Route("person/{action}")]
+        [Route("person/delete")]
         [HttpDelete]
         public ActionResult<Person> Delete([FromBody] Person ourPerson)
         {
@@ -64,7 +64,7 @@ namespace Library.Controllers
             return BadRequest();
         }
 
-        [Route("person/{action}/{Id}")]
+        [Route("person/delete/{Id}")]
         [HttpDelete]
         public ActionResult<Person> Delete(int id)
         {

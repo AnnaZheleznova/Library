@@ -94,7 +94,7 @@ namespace Library.DAL
             throw new NotImplementedException();
         }
 
-        public List<LibraryCard> GetAllBookByAuthor(Author author)
+        public List<Author> GetAllBookByAuthor(int Id)
         {
             throw new NotImplementedException();
         }

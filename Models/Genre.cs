@@ -7,7 +7,7 @@ namespace Library.Models
         public int Id { get; set; }
         public string GenreName { get; set; }
         public List<BookGenre> BookGenres { get; set; }
-        
+
         public Genre()
         {
             BookGenres = new List<BookGenre>();

@@ -9,6 +9,6 @@ namespace Library.Models
         public string LastName { get; set; }
         public string MiddleName { get; set; }
 
-        public List<Book> Books { get; set; } = new List<Book>();
+        public List<Book> Books { get; set; } 
     }
 }

@@ -15,11 +15,11 @@ namespace Library.Context
         public DbSet<Genre> Genres { get; set; }
         public DbSet<Person> People { get; set; }
 
+        public DbSet<BookGenre> BookGenres { get; set; }
+
         public DataContext(DbContextOptions<DataContext> dbContext) : base(dbContext)
         {
             Database.EnsureCreated();
-            
-
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) 

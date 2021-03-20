@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Library.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20210318082238_NewMigration")]
-    partial class NewMigration
+    [Migration("20210319210241_MyMigration")]
+    partial class MyMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -77,7 +77,7 @@ namespace Library.Migrations
 
                     b.HasIndex("GenreId");
 
-                    b.ToTable("BookGenre");
+                    b.ToTable("BookGenres");
                 });
 
             modelBuilder.Entity("Library.Models.Genre", b =>
@@ -108,7 +108,7 @@ namespace Library.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("LibraryCard");
+                    b.ToTable("LibraryCards");
                 });
 
             modelBuilder.Entity("Library.Models.Person", b =>

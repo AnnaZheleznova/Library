@@ -1,10 +1,6 @@
 ﻿using Library.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Library.Context
 {
@@ -16,10 +12,12 @@ namespace Library.Context
         public DbSet<Person> People { get; set; }
 
         public DbSet<BookGenre> BookGenres { get; set; }
+        public DbSet<LibraryCard> LibraryCards { get; set; }
 
         public DataContext(DbContextOptions<DataContext> dbContext) : base(dbContext)
         {
             Database.EnsureCreated();
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
@@ -46,7 +44,6 @@ namespace Library.Context
 
             modelBuilder.Entity<Person>().Property(p => p.FirstName).IsRequired();
             modelBuilder.Entity<Person>().Property(p => p.LastName).IsRequired();
-
 
             base.OnModelCreating(modelBuilder);
         }

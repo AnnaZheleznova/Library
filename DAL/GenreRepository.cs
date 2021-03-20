@@ -1,6 +1,6 @@
-﻿using Dapper;
+﻿using Library.Context;
 using Library.Models;
-using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,54 +9,33 @@ namespace Library.DAL
 {
     public class GenreRepository : IGenreRepository
     {
-        //public bool AddGenres(Genre genre)//6.4.2
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        string genreAdd = string.Format(@"insert into [Library].[dbo].[Genre] (GenreName) values('{0}')",genre.GenreName);
-        //        _db.Execute(genreAdd);
-        //        return true;
-        //    }
-        //}
+        private DataContext _context;
 
-        //public List<Genre> GetGenres()//6.4.1
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        string genreAll = @"select *from[Library].[dbo].[Genre] ";
-        //        List<Genre> genres = _db.Query<Genre>(genreAll).ToList();
-        //        return genres;
-        //    }
-        //}
-
-        //public int Statistic(Genre genre)//6.4.3
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        string searchId = string.Format(@"select GenreId from [Library].[dbo].Genre  where GenreName like '{0}'",genre.GenreName);
-        //        int Id = (int)_db.ExecuteScalar(searchId);
-        //        string genreAll = string.Format(@"select count(*)
-        //                            from [Library].[dbo].[Book] a
-        //                            left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = a.BookId
-        //                            left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
-        //                            where d.GenreId = {0}",Id);
-        //        int genres =(int) _db.ExecuteScalar(genreAll);
-        //        return genres;
-        //    }
-        //}
-        public bool AddGenres(Genre genre)
+        public GenreRepository(DataContext context)
         {
-            throw new System.NotImplementedException();
+            _context = context;
         }
 
-        public List<Genre> GetGenres()
+        public List<string> AddGenres(Genre genre)
         {
-            throw new System.NotImplementedException();
+            Genre newGenre = new Genre { GenreName = genre.GenreName };
+            _context.Genres.Add(newGenre);
+            _context.SaveChanges();
+            return GetGenres();
         }
 
-        public int Statistic(Genre genre)
+        public List<string> GetGenres()
         {
-            throw new System.NotImplementedException();
+            var genres = _context.Genres.Select(u => u.GenreName).ToList();
+            return genres;
+        }
+
+        public List<object> Statistic()
+        {
+            var statistic = _context.BookGenres.Include(u => u.Genre).GroupBy(u => u.Genre.GenreName).Select(u => new { u.Key, Count = u.Count() }).ToList();
+            List<object> result = new List<object>();
+            result.Add(statistic);
+            return result;
         }
     }
 }

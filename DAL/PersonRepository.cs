@@ -1,6 +1,8 @@
 ﻿using Dapper;
+using Library.Context;
 using Library.Models;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,156 +11,109 @@ namespace Library.DAL
 {
     public class PersonRepository : IPersonRepository
     {
-        //public List<LibraryCard> GetPersonBooks(int Id)//6.1.5
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        var persons = _db.Query<LibraryCard>(string.Format(@"select b.*, a.*, d.*
-        //                                                                from[Library].[dbo].[LibraryCard]
-        //                                                                left join[Library].[dbo].[Book] b on b.[BookId] =[BookBookId]
-        //                                                                left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = b.BookId
-        //                                                                left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
-        //                                                                left join[Library].[dbo].[Author] a on a.AuthorId = b.AuthorId
-        //                                                                where PersonPersonId = {0}", Id)).ToList();
-        //        return persons;
-        //    }
-        //}
+        private DataContext _context;
 
-        //public List<Person>  InsertPerson(Person person)//6.1.1
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        List<Person> NewPerson = _db.Query<Person>(string.Format(@"insert into [Library].[dbo].[Person]
-        //                            ([BirthDay],[FirstName],[LastName],[MiddleName]) 
-        //                            values('{0}','{1}','{2}','{3}')
-        //                            select*from [Library].[dbo].[Person] where PersonId= SCOPE_IDENTITY()", 
-        //                            person.BirthDay,
-        //                            person.FirstName,
-        //                            person.LastName,
-        //                            person.MiddleName)).ToList();
-        //        return NewPerson;
-        //    }
-        //}
-
-        //public List<Person> UpdatePerson(Person person)//6.1.2
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        List<Person> UpdatePerson = _db.Query<Person>(string.Format(@"update [Library].[dbo].[Person] 
-        //                                        set[BirthDay] = '{0}',
-        //                                        [FirstName] = '{1}',
-        //                                        [LastName] = '{2}',
-        //                                        [MiddleName] = '{3}'
-        //                                        where[PersonId] = {4}
-        //                                        select * from [Library].[dbo].[Person] where PersonId= ", 
-        //                                        person.BirthDay, 
-        //                                        person.FirstName,
-        //                                        person.LastName,
-        //                                        person.MiddleName, 
-        //                                        person.Id)).ToList();
-
-        //            return UpdatePerson;
-        //    }
-        //}
-
-        //public bool DeletePersonFIO(Person person)//6.1.4
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        int rowsAffected = _db.Execute(string.Format(@"DELETE FROM [Library].[dbo].[Person] 
-        //                                            WHERE FirstName+LastName+MiddleName = '{0}'+'{1}'+'{2}'", 
-        //                                            person.FirstName,
-        //                                            person.LastName,
-        //                                            person.MiddleName));
-
-        //        if (rowsAffected > 0)
-        //        {
-        //            return true;
-        //        }
-
-        //        return false;
-        //    }
-        //}
-
-        //public bool DeletePersonId(int Id)//6.1.3
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        int rowsAffected = _db.Execute(string.Format(@"DELETE FROM [Library].[dbo].[Person] 
-        //                                                        WHERE PersonId = {0}", Id));
-
-        //        if (rowsAffected > 0)
-        //        {
-        //            return true;
-        //        }
-
-        //        return false;
-        //    }
-        //}
-
-        //public List<LibraryCard> InsertLibraryCard(int bookId, int personId)//6.1.6
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        List<LibraryCard> GetBook = _db.Query<LibraryCard>(string.Format(@"insert into [Library].[dbo].[LibraryCard]
-        //                            ([BookBookId],[PersonPersonId]) 
-        //                            values('{0}','{1}')
-        //                            select a.FirstName, a.LastName, a.MiddleName, b.Name
-        //                            from  [Library].[dbo].[LibraryCard]
-        //                            left join [Library].[dbo].[Person] a  on [PersonId]=[PersonPersonId]
-        //                            left join [Library].[dbo].[Book] b on [BookId]=[BookBookId]
-        //                            where PersonPersonId={1}", bookId, personId)).ToList();
-        //        return GetBook;
-        //    }
-        //}
-
-        //public List<LibraryCard> DeleteLibraryCard(int bookId, int personId)//6.1.7
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        List<LibraryCard> PutBook = _db.Query<LibraryCard>(string.Format(@"delete from [Library].[dbo].[LibraryCard]
-        //                                where BookBookId={0} and PersonPersonId={1}
-        //                                select a.FirstName, a.LastName, a.MiddleName, b.Name
-        //                                from  [Library].[dbo].[LibraryCard]
-        //                                left join [Library].[dbo].[Person] a  on [PersonId]=[PersonPersonId]
-        //                                left join [Library].[dbo].[Book] b on [BookId]=[BookBookId]
-        //                                where PersonPersonId={1}",bookId, personId)).ToList();
-        //        return PutBook;
-        //    }
-        //}
-        public List<LibraryCard> DeleteLibraryCard(int bookId, int personId)
+        public PersonRepository(DataContext context)
         {
-            throw new System.NotImplementedException();
+            _context = context;
         }
 
-        public bool DeletePersonFIO(Person person)
+        public List<object> DeleteLibraryCard(int bookId, int personId)
         {
-            throw new System.NotImplementedException();
+            LibraryCard libraryCard = new LibraryCard { BookId = bookId, PersonId = personId };
+            if (libraryCard != null)
+            {
+                _context.LibraryCards.Remove(libraryCard);
+                _context.SaveChanges();
+            }
+
+            return Get(personId);
+        }
+
+        public bool DeletePersonFIO(Person ourPerson)
+        {
+            var person = _context.People.FirstOrDefault(u => u.FirstName == ourPerson.FirstName && u.LastName == ourPerson.LastName && u.MiddleName == ourPerson.MiddleName);
+            if (person != null)
+            {
+                _context.People.Remove(person);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
         }
 
         public bool DeletePersonId(int Id)
         {
-            throw new System.NotImplementedException();
+            var person = _context.People.Find(Id);
+            if (person != null)
+            {
+                _context.People.Remove(person);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
         }
 
-        public List<LibraryCard> GetPersonBooks(int Id)
+        public List<object> Get(int Id)
         {
-            throw new System.NotImplementedException();
+            List<object> result = new List<object>();
+            var persons = _context.People.Include(c => c.LibraryCards).FirstOrDefault(u => u.Id == Id);
+            foreach (var item in persons.LibraryCards)
+            {
+                var books = _context.Books.Find(item.BookId);
+                var authors = _context.Authors.Find(_context.Books.FirstOrDefault(u => u.Id == item.BookId).AuthorId);
+                var author = new Author { FirstName = authors.FirstName, LastName = authors.LastName, MiddleName = authors.MiddleName };
+                result.Add(books.Name);
+                result.Add(author);
+                var genres = _context.BookGenres.Where(u => u.BookId == books.Id).ToList();
+
+                foreach (var genre in genres)
+                {
+                    var findgenre = _context.Genres.Find(genre.GenreId);
+                    var genr = new Genre { GenreName = findgenre.GenreName };
+                    result.Add(genr);
+                }
+            }
+            return result;
         }
 
-        public List<LibraryCard> InsertLibraryCard(int bookId, int personId)
+        public List<object> InsertLibraryCard(int bookId, int personId)
         {
-            throw new System.NotImplementedException();
+            LibraryCard libraryCard = new LibraryCard { BookId = bookId, PersonId = personId };
+            if (libraryCard != null)
+            {
+                _context.LibraryCards.Add(libraryCard);
+                _context.SaveChanges();
+            }
+            return Get(personId);
         }
 
-        public List<Person> InsertPerson(Person person)
+        public Person InsertPerson(Person ourPerson)
         {
-            throw new System.NotImplementedException();
+            var persons = new Person
+            {
+                FirstName = ourPerson.FirstName,
+                LastName = ourPerson.LastName,
+                MiddleName = ourPerson.MiddleName,
+                BirthDay = ourPerson.BirthDay
+            };
+            _context.People.Add(persons);
+            _context.SaveChanges();
+            return persons;
         }
 
-        public List<Person> UpdatePerson(Person person)
+        public Person UpdatePerson(Person ourPerson)
         {
-            throw new System.NotImplementedException();
+            Person person = _context.People.FirstOrDefault(u => u.Id == ourPerson.Id);
+            if (person != null)
+            {
+                person.BirthDay = ourPerson.BirthDay;
+                person.FirstName = ourPerson.FirstName;
+                person.LastName = ourPerson.LastName;
+                person.MiddleName = ourPerson.MiddleName;
+                _context.SaveChanges();
+            }
+            return person;
         }
     }
 }

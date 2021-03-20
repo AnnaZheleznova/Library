@@ -1,13 +1,14 @@
 ﻿using Library.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
 namespace Library.DAL
 {
     interface IAuthorRepository
     {
-        List<Author> GetAllAuthor();
-        public List<Author> GetAllBookByAuthor(int Id);
-        List<Author> AddAuthor(Author author);
-        bool DeleteAuthor(Author author);
+        public List<string> GetAllAuthor();
+        public List<object> GetBook(int Id);
+        public Author AddAuthor(Author author);
+        public bool DeleteAuthor(Author author);
     }
 }

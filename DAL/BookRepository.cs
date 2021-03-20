@@ -1,6 +1,8 @@
 ﻿using Dapper;
+using Library.Context;
 using Library.Models;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,193 +11,180 @@ namespace Library.DAL
 {
     public class BookRepository : IBookRepository
     {
-        //public List<Book> AllBookByAuthor(Author author)//6.2.4
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        string AuthorId = string.Format(@"select AuthorId from[Library].[dbo].[Author] 
-        //                                            where FirstName like '{0}' and LastName like '{1}' and MiddleName like '{2}'",
-        //            author.FirstName, author.LastName, author.MiddleName);
-        //        int Id = (int)_db.ExecuteScalar(AuthorId);
+        private DataContext _context;
 
-        //        string result = string.Format(@"select * from [Library].[dbo].[Book] a
-        //                                        where a.AuthorId = {0} ", Id);
-        //        List<Book> AllBooksByAuthor = _db.Query<Book>(result).ToList();
-        //        return AllBooksByAuthor;
-        //    }
-        //}
-
-        //public List<Book> AllBookByGenre(Genre genre)//6.2.5
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        string GenreId = string.Format(@"select [GenreId] from[Library].[dbo].[Genre] where [GenreName] like '{0}'", genre.GenreName);
-        //        int Id = (int)_db.ExecuteScalar(GenreId, genre);
-
-        //        string result = string.Format(@"select * from [Library].[dbo].[Book] a
-        //                            left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = a.BookId
-        //                            left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
-        //                            where d.GenreId = {0} ", Id);
-        //        List<Book> AllBooksByGenre = _db.Query<Book>(result).ToList();
-        //        return AllBooksByGenre;
-        //    }
-        //}
-
-        //public bool DeleteBook(int id)//6.2.2
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        string search = string.Format(@"select count([BookBookId]) from [dbo].[LibraryCard] where [BookBookId]={0}", id);
-
-        //        int row = (int)_db.ExecuteScalar(search);
-        //        if (row <= 0)
-        //        {
-        //            string searchGenre = string.Format(@"select [GenreId] from [Library].[dbo].[BookGenreLink] where [BookId]={0}", id);
-        //            int searchtGenre = (int)_db.ExecuteScalar(searchGenre);//Id жанра
-        //            string delete = string.Format(@"delete from [Library].[dbo].[Book] where [BookId]={0}
-        //                            delete from [Library].[dbo].[BookGenreLink] where BookId={0} and GenreId={1}", id, searchtGenre);
-        //            _db.Execute(delete);
-        //            return true;
-        //        }
-        //        return false;
-        //    }
-        //}
-
-        //public List<LibraryCard> InsertBook(LibraryCard libraryCard)//6.2.1
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        //string AuthorBook = string.Format(@"select count(*) 
-        //        //                from[Library].[dbo].[Author]
-        //        //                where[FirstName] like '{0}' and[LastName] like'{1}' and[MiddleName] like '{2}'",
-        //        //                libraryCard.FirstName,
-        //        //                libraryCard.LastName,
-        //        //                libraryCard.MiddleName);
-        //        //int rows = (int)_db.ExecuteScalar(AuthorBook);//существуют ли строчки с таким автором
-
-        //        //if (rows <= 0)
-        //        //{
-        //        //    string InsertAuthor = string.Format(@"insert into [Library].[dbo].[Author] ([FirstName],[LastName],[MiddleName]) 
-        //        //                        values('{0}', '{1}', '{2}')", libraryCard.FirstName, libraryCard.LastName, libraryCard.MiddleName);
-        //        //    _db.Execute(InsertAuthor);
-        //        //}
-        //        //string ResultAuthor = string.Format(@"select [AuthorId] 
-        //        //                from[Library].[dbo].[Author]
-        //        //                where[FirstName] like '{0}' and[LastName] like'{1}' and[MiddleName] like '{2}'",
-        //        //                libraryCard.FirstName,
-        //        //                libraryCard.LastName,
-        //        //                libraryCard.MiddleName);
-        //        //int ResultsAuthor = (int)_db.ExecuteScalar(ResultAuthor);//Id автора
-
-        //        //string GenreBook = string.Format(@"select count(*) 
-        //        //                     from [Library].[dbo].[Genre]
-        //        //                     where [GenreName] like '{0}'", libraryCard.GenreName);
-        //        //rows = (int)_db.ExecuteScalar(GenreBook);//существуют ли строчки с таким жанром
-        //        //if (rows <= 0)
-        //        //{
-        //        //    string InsertGenre = string.Format(@"insert into [Library].[dbo].[Genre] ([GenreName]) values('{0}')", libraryCard.GenreName);
-        //        //    _db.Execute(InsertGenre);
-        //        //}
-
-        //        //string ResultGenre = string.Format(@"select [GenreId] 
-        //        //                from[Library].[dbo].[Genre]
-        //        //                where[GenreName] like '{0}'", libraryCard.GenreName);
-        //        //int resultGenre = (int)_db.ExecuteScalar(ResultGenre);//Id жанра
-
-        //        //string InsertBook = string.Format(@"insert into [Library].[dbo].[Book] ([Name],[AuthorId]) 
-        //        //                        values('{0}',{1})
-        //        //                        select [BookId]=SCOPE_IDENTITY()", libraryCard.Name, ResultsAuthor);
-        //        //_db.Execute(InsertBook);
-
-        //        //string ResultBook = string.Format(@"select [BookId] 
-        //        //                from[Library].[dbo].[Book]
-        //        //                where[Name] like '{0}' and AuthorId={1}", libraryCard.Name, ResultsAuthor);
-        //        //int resultBook = (int)_db.ExecuteScalar(ResultBook);//Id книги
-
-        //        //string BookGenre = string.Format(@"insert into [Library].[dbo].[BookGenreLink] ([BookId],[GenreId]) values({0},{1})",
-        //        //                                                                                                        resultBook,
-        //        //                                                                                                        resultGenre);
-
-        //        //_db.Execute(BookGenre);
-        //        //string result = string.Format(@"select a.[Name],
-        //        //                                b.FirstName, b.LastName, b.MiddleName,
-        //        //                                d.GenreName
-        //        //                                from [Library].[dbo].[Book] a
-        //        //                                left join[Library].[dbo].[Author] b on b.AuthorId = a.AuthorId
-        //        //                                left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = a.BookId
-        //        //                                left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
-        //        //                                where a.AuthorId = {0} and a.BookId={1} and c.[GenreId]={2}",
-        //        //                                ResultsAuthor,
-        //        //                                resultBook,
-        //        //                                resultGenre);
-        //        //List<LibraryCard> insertbook = _db.Query<LibraryCard>(result).ToList();
-        //        List<LibraryCard> nom = new {l };
-        //        return nom;
-        //    }
-        //}
-
-        //public List<LibraryCard> NewGenre(Book book)//6.2.3
-        //{
-        //    using (IDbConnection _db = new SqlConnection("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"))
-        //    {
-        //        string genresearch = string.Format(@"select d.*
-        //                                from [Library].[dbo].[Book] a
-        //                                left join[Library].[dbo].[Author] b on b.AuthorId = a.AuthorId
-        //                                left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = a.BookId
-        //                                left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
-        //                                where a.BookId = {0} order by d.GenreName", book.Id);
-        //        List<Genre> search = _db.Query<Genre>(genresearch).ToList();
-        //for (int i = 0; i < book.Genres.Count(); i++)
-        //{
-        //    if (search.Count() < book.Genres.Count() && search.ElementAt(i).GenreName != book.Genres.ElementAt(i).GenreName)
-        //    {
-        //        string addGenre = string.Format(@"insert into [Library].[dbo].[Genre] (GenreName) values('{0}')
-        //                                            insert into [Library].[dbo].[BookGenreLink] (BookId,GenreId) values({1},{2})",
-        //                                            book.Genres.ElementAt(i).GenreName, book.Id, book.Genres.ElementAt(i).Id);
-        //        _db.Execute(addGenre);
-        //    }
-        //    else if (search.Count() > book.Genres.Count())
-        //    {
-        //        string deleteGenre = string.Format(@"delete from [Library].[dbo].[BookGenreLink] where BookId={0} and GenreId={1}", 
-        //                                                                                book.Id, book.Genres.ElementAt(i).Id);
-        //        _db.Execute(deleteGenre);
-        //    }
-
-        //}
-
-        //    string genre = string.Format(@"select *  from [Library].[dbo].[Book] a
-        //                        left join[Library].[dbo].[Author] b on b.AuthorId = a.AuthorId
-        //                        left join[Library].[dbo].[BookGenreLink] c on c.[BookId] = a.BookId
-        //                        left join[Library].[dbo].[Genre] d on d.GenreId = c.[GenreId]
-        //                        where a.BookId = {0}",book.Id);
-        //    List<LibraryCard> result = _db.Query<LibraryCard>(genre).ToList();
-        //    return result;
-        //}
-        //}
-        //}
-        public List<Book> AllBookByAuthor(Author author)
+        public BookRepository(DataContext context)
         {
-            throw new System.NotImplementedException();
+            _context = context;
         }
 
-        public List<Book> AllBookByGenre(Genre genre)
+        public List<object> AllBookByAuthor(string FirstName, string LastName, string MiddleName)
         {
-            throw new System.NotImplementedException();
+            List<object> result = new List<object>();
+            var authors = _context.Authors.Include(u => u.Books).ThenInclude(u => u.BookGenres).ThenInclude(u => u.Genre).Where(p => p.FirstName == FirstName && p.LastName == LastName && p.MiddleName == MiddleName).ToList();
+            foreach (var a in authors)
+            {
+                var newAuthor = new { Author = a.FirstName + " " + a.LastName + " " + a.MiddleName };
+                result.Add(newAuthor);
+
+                foreach (var b in a.Books)
+                {
+                    var newBook = new { Book = b.Name };
+                    result.Add(newBook);
+
+                    foreach (var g in b.BookGenres)
+                    {
+                        var newGenre = new { Genre = g.Genre.GenreName };
+                        result.Add(newGenre);
+                    }
+                }
+            }
+            return result;
         }
 
-        public bool DeleteBook(int id)
+        public List<object> AllBookByGenre(string Genre)
         {
-            throw new System.NotImplementedException();
+            List<object> result = new List<object>();
+            var genres = _context.Genres.Include(u => u.BookGenres).ThenInclude(u => u.Book).ThenInclude(u => u.Author).Where(u => u.GenreName == Genre).ToList();
+            foreach (var a in genres)
+            {
+                var newGenre = new { Genre = a.GenreName };
+                result.Add(newGenre);
+
+                foreach (var b in a.BookGenres)
+                {
+                    var newBook = new { Book = b.Book.Name };
+                    result.Add(newBook);
+                    var authors = _context.Authors.Include(u => u.Books).ThenInclude(u => u.BookGenres).ThenInclude(u => u.Genre).Where(u => u.Id == b.Book.AuthorId).ToList();
+
+                    foreach (var g in authors)
+                    {
+                        var newAuthor = new { Author = g.FirstName + " " + g.LastName + " " + g.MiddleName };
+                        result.Add(newAuthor);
+                    }
+                }
+            }
+            return result;
         }
 
-        public List<LibraryCard> InsertBook(LibraryCard libraryCard)
+        public bool DeleteBook(int Id)
         {
-            throw new System.NotImplementedException();
+            var library = _context.LibraryCards.FirstOrDefault(u => u.BookId == Id);
+            if (library == null)
+            {
+                var book = _context.Books.Find(Id);
+                _context.Books.Remove(book);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
         }
 
-        public List<LibraryCard> NewGenre(Book book)
+        public bool InsertBook(Book book)
         {
-            throw new System.NotImplementedException();
+            var author = _context.Authors.Find(book.AuthorId);
+            var genre = " ";
+            if (author == null)
+            {
+                author = new Author { FirstName = book.Author.FirstName, LastName = book.Author.LastName, MiddleName = book.Author.MiddleName };
+                _context.Authors.Add(author);
+                _context.SaveChanges();
+            }
+
+            foreach (var b in book.BookGenres)
+            {
+                genre = b.Genre.GenreName;
+            }
+
+            var genreFind = _context.Genres.Include(u => u.BookGenres).ThenInclude(u => u.Genre).FirstOrDefault(u => u.GenreName == genre);
+            if (genreFind == null)
+            {
+                genreFind = new Genre { GenreName = genre };
+                _context.Genres.Add(genreFind);
+            }
+
+            Book newbook = new Book { Name = book.Name, AuthorId = author.Id };
+            _context.Books.Add(newbook);
+
+            BookGenre bookGenre = new BookGenre { BookId = newbook.Id, GenreId = genreFind.Id };
+            newbook.BookGenres.Add(bookGenre);
+
+            _context.SaveChanges();
+            return true;
+        }
+
+        public List<object> NewGenre(int Id, List<int> genres)
+        {
+            List<int> ourGenre = new List<int>();
+            List<int> newGenre = genres;
+            List<int> compare = new List<int>();
+
+            var books = _context.Books.Include(u => u.BookGenres).ThenInclude(u => u.Genre).FirstOrDefault(u => u.Id == Id);
+            foreach (var genred in books.BookGenres)
+            {
+                ourGenre.Add(genred.Genre.Id);
+            }
+
+            if (ourGenre.Count == newGenre.Count)
+            {
+                compare = ourGenre.Except(newGenre).ToList();
+                foreach (var item in compare)
+                {
+                    var oldInformation = books.BookGenres.FirstOrDefault(u => u.GenreId == item);
+                    books.BookGenres.Remove(oldInformation);
+                    _context.SaveChanges();
+
+                }
+                compare = newGenre.Except(ourGenre).ToList();
+                foreach (var item in compare)
+                {
+                    var newInformation = _context.Genres.Find(item);
+                    books.BookGenres.Add(new BookGenre { Book = books, Genre = newInformation });
+                    _context.SaveChanges();
+
+                }
+            }
+            if (ourGenre.Count > newGenre.Count)
+            {
+                compare = ourGenre.Except(newGenre).ToList();
+                foreach (var item in compare)
+                {
+                    var oldInformation = books.BookGenres.FirstOrDefault(u => u.GenreId == item);
+                    books.BookGenres.Remove(oldInformation);
+                    _context.SaveChanges();
+
+                }
+            }
+            if (newGenre.Count > ourGenre.Count)
+            {
+                compare = newGenre.Except(ourGenre).ToList();
+                foreach (var item in compare)
+                {
+                    var newInformation = _context.Genres.Find(item);
+                    books.BookGenres.Add(new BookGenre { Book = books, Genre = newInformation });
+                    _context.SaveChanges();
+
+                }
+            }
+
+            List<object> result = new List<object>();
+            var bookss = _context.Books.Include(u => u.BookGenres).ThenInclude(u => u.Genre).FirstOrDefault(u => u.Id == Id);
+            var ourBook = new { bookss.Name };
+            result.Add(ourBook);
+
+            foreach (var a in bookss.BookGenres)
+            {
+                var ourGenree = new { Genre = a.Genre.GenreName };
+                result.Add(ourGenree);
+            }
+            var ourAuthor = _context.Books.Include(u => u.Author).Where(u => u.Id == Id).ToList();
+            foreach (var d in ourAuthor)
+            {
+                var sgdfg = new { Author = d.Author.FirstName + " " + d.Author.LastName + " " + d.Author.MiddleName };
+                result.Add(sgdfg);
+            }
+
+            return result;
         }
     }
 }

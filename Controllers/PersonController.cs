@@ -13,84 +13,77 @@ namespace Library.Controllers
     public class PersonController : ControllerBase
     {
         private DataContext _context;
-        private PersonRepository _ourPersonRepository;
+        private IPersonRepository _personRepository;
 
-        public PersonController(DataContext context)
+        public PersonController(DataContext dataContext)
         {
-            _context = context;
+            _context = dataContext;
+            _personRepository = new PersonRepository(_context);
         }
 
         [Route("person/{Id}")]
         [HttpGet]
         public ActionResult Get(int Id)
         {
-            var persons = _context.People.Include(c => c.LibraryCards).ThenInclude(sc => sc.Book).Where(p => p.Id == Id).ToList();
-            return Ok(persons);
+            var result = _personRepository.Get(Id);
+            return Ok(result);
         }
 
         [Route("person/post")]
         [HttpPost]
         public ActionResult Post([FromBody] Person ourPerson)
         {
-            var persons = new Person
-            {
-                FirstName = ourPerson.FirstName,
-                LastName = ourPerson.LastName,
-                MiddleName = ourPerson.MiddleName,
-                BirthDay = ourPerson.BirthDay
-            };
-            _context.People.Add(persons);
-            _context.SaveChanges();
-            return Ok(persons);
+            var result = _personRepository.InsertPerson(ourPerson);
+            return Ok(result);
         }
 
         [Route("person/update")]
         [HttpPost]
-        public List<Person> Update([FromBody] Person ourPerson )
+        public ActionResult Update([FromBody] Person ourPerson )
         {
-            List<Person> persons= _ourPersonRepository.UpdatePerson(ourPerson);
-            return persons;
+            var result = _personRepository.UpdatePerson(ourPerson);
+            return Ok(result);
         }
 
         [Route("person/delete")]
         [HttpDelete]
-        public ActionResult<Person> Delete([FromBody] Person ourPerson)
+        public ActionResult Delete([FromBody] Person ourPerson)
         {
-            bool result = _ourPersonRepository.DeletePersonFIO(ourPerson);
-            if (result == true)
+            var result = _personRepository.DeletePersonFIO(ourPerson);
+            if(result==true)
             {
                 return Ok();
             }
-            return BadRequest();
+            return BadRequest("Возникла ошибка");
         }
 
         [Route("person/delete/{Id}")]
         [HttpDelete]
-        public ActionResult<Person> Delete(int id)
+        public ActionResult<Person> Delete(int Id)
         {
-            bool result = _ourPersonRepository.DeletePersonId(id);
+            var result = _personRepository.DeletePersonId(Id);
             if (result == true)
             {
                 return Ok();
             }
-            return BadRequest();
+            return BadRequest("Данного Id не существует");
         }
 
         [Route("person/getbookperson/{bookId}/{personId}")]
         [HttpPost]
         public ActionResult GetBookPerson(int bookId, int personId)
         {
-            var persons = new { BookId=bookId,PersonId=personId };
-            
-            return Ok(persons);
+            var result = _personRepository.InsertLibraryCard(bookId, personId);
+            return Ok(result);
         }
 
         [Route("person/PutBookPerson/{bookId}/{personId}")]
         [HttpDelete]
-        public List<LibraryCard> PutBookPerson(int bookId, int personId)
+        public ActionResult PutBookPerson(int bookId, int personId)
         {
-            List<LibraryCard> persons = _ourPersonRepository.DeleteLibraryCard(bookId,personId);
-            return persons;
+            var result = _personRepository.DeleteLibraryCard(bookId, personId);
+
+            return Ok(Get(personId));
         }
 
     }

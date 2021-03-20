@@ -2,9 +2,6 @@
 using Library.DAL;
 using Library.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Library.Controllers
 {
@@ -12,11 +9,13 @@ namespace Library.Controllers
     [ApiController]
     public class GenreController : ControllerBase
     {
+        private readonly IGenreRepository _genreRepository;
         private readonly DataContext _context;
 
-        public GenreController(DataContext context)
+        public GenreController(DataContext dataContext)
         {
-            _context = context;
+            _context = dataContext;
+            _genreRepository = new GenreRepository(_context);
         }
 
 
@@ -24,23 +23,24 @@ namespace Library.Controllers
         [HttpGet]
         public ActionResult Get()
         {
-            var genre = _context.Genres.Select(u=>u.GenreName).ToList();
-            return Ok(genre);
+            var result = _genreRepository.GetGenres();
+            return Ok(result);
         }
 
         [Route("genre/statistic")]
         [HttpGet]
         public ActionResult Getstatics()
         {
-            var statistic = _context.Genres.GroupBy(u=>u.GenreName).ToList();
-            return Ok(statistic);
+            var result = _genreRepository.Statistic();
+            return Ok(result);
         }
 
         [Route("genre/post")]
         [HttpPost]
         public ActionResult Post([FromBody] Genre genre)
         {
-             return Ok();
+            var result = _genreRepository.AddGenres(genre);
+            return Ok(result);
         }
     }
 }

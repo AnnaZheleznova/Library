@@ -75,7 +75,7 @@ namespace Library.Migrations
 
                     b.HasIndex("GenreId");
 
-                    b.ToTable("BookGenre");
+                    b.ToTable("BookGenres");
                 });
 
             modelBuilder.Entity("Library.Models.Genre", b =>
@@ -106,7 +106,7 @@ namespace Library.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("LibraryCard");
+                    b.ToTable("LibraryCards");
                 });
 
             modelBuilder.Entity("Library.Models.Person", b =>

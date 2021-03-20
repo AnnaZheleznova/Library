@@ -20,6 +20,7 @@ namespace Library
 
 
             services.AddDbContext<DataContext>(options=>options.UseSqlServer("Server=localhost\\SQLEXPRESS01;Database=Library;Trusted_Connection=True;"));
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo

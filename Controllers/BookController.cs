@@ -2,9 +2,7 @@
 using Library.DAL;
 using Library.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Library.Controllers
 {
@@ -23,9 +21,9 @@ namespace Library.Controllers
 
         [Route("book/post")]
         [HttpPost]
-        public ActionResult Post([FromBody]Book book)
+        public ActionResult Insert([FromBody]Book book)
         {
-            var result = _bookRepository.InsertBook(book);
+            var result = _bookRepository.Insert(book);
             return Ok(result);
         }
 
@@ -45,7 +43,7 @@ namespace Library.Controllers
         [HttpGet]
         public ActionResult GetByAuthor(string FirstName, string LastName, string MiddleName)
         {
-            var result = _bookRepository.AllBookByAuthor(FirstName, LastName, MiddleName);
+            var result = _bookRepository.GetByAuthor(FirstName, LastName, MiddleName);
             return Ok(result);
         }
 
@@ -53,15 +51,15 @@ namespace Library.Controllers
         [HttpGet]
         public ActionResult GetByGenre(string Genre)
         {
-            var result = _bookRepository.AllBookByGenre(Genre);
+            var result = _bookRepository.GetByGenre(Genre);
             return Ok(result);
         }
 
         [Route("book/put/{Id}")]
         [HttpPut]
-        public ActionResult PutGenre(int Id, List<int> genres)
+        public ActionResult InsertGenreByBook(int Id, List<int> genres)
         {
-            var result = _bookRepository.NewGenre(Id, genres);
+            var result = _bookRepository.InsertGenreByBook(Id, genres);
             return Ok(result);
         }
 

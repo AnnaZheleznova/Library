@@ -37,9 +37,9 @@ namespace Library.Controllers
 
         [Route("genre/post")]
         [HttpPost]
-        public ActionResult Post([FromBody] Genre genre)
+        public ActionResult InsertGenre([FromBody] Genre genre)
         {
-            var result = _genreRepository.AddGenres(genre);
+            var result = _genreRepository.InsertGenre(genre);
             return Ok(result);
         }
     }

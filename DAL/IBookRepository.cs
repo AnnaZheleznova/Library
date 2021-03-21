@@ -5,11 +5,11 @@ namespace Library.DAL
 {
     interface IBookRepository
     {
-        public bool InsertBook(Book book);
+        public bool Insert(Book book);
         public bool DeleteBook(int Id);
-        public List<object> NewGenre(int Id, List<int> genres);
-        public List<object> AllBookByAuthor(string FirstName, string LastName, string MiddleName);
-        public List<object> AllBookByGenre(string Genre);
+        public List<object> InsertGenreByBook(int Id, List<int> genres);
+        public List<object> GetByAuthor(string FirstName, string LastName, string MiddleName);
+        public List<object> GetByGenre(string Genre);
 
     }
 }

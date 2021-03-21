@@ -1,7 +1,5 @@
-﻿using Dapper;
-using Library.Context;
+﻿using Library.Context;
 using Library.Models;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data;
@@ -20,10 +18,10 @@ namespace Library.DAL
 
         public List<object> DeleteLibraryCard(int bookId, int personId)
         {
-            LibraryCard libraryCard = new LibraryCard { BookId = bookId, PersonId = personId };
-            if (libraryCard != null)
+            LibraryCard LibraryCard = new LibraryCard { BookId = bookId, PersonId = personId };
+            if (LibraryCard != null)
             {
-                _context.LibraryCards.Remove(libraryCard);
+                _context.LibraryCards.Remove(LibraryCard);
                 _context.SaveChanges();
             }
 
@@ -32,10 +30,10 @@ namespace Library.DAL
 
         public bool DeletePersonFIO(Person ourPerson)
         {
-            var person = _context.People.FirstOrDefault(u => u.FirstName == ourPerson.FirstName && u.LastName == ourPerson.LastName && u.MiddleName == ourPerson.MiddleName);
-            if (person != null)
+            var PersonByFIO = _context.People.FirstOrDefault(u => u.FirstName == ourPerson.FirstName && u.LastName == ourPerson.LastName && u.MiddleName == ourPerson.MiddleName);
+            if (PersonByFIO != null)
             {
-                _context.People.Remove(person);
+                _context.People.Remove(PersonByFIO);
                 _context.SaveChanges();
                 return true;
             }
@@ -44,10 +42,10 @@ namespace Library.DAL
 
         public bool DeletePersonId(int Id)
         {
-            var person = _context.People.Find(Id);
-            if (person != null)
+            var PersonById = _context.People.Find(Id);
+            if (PersonById != null)
             {
-                _context.People.Remove(person);
+                _context.People.Remove(PersonById);
                 _context.SaveChanges();
                 return true;
             }
@@ -57,21 +55,22 @@ namespace Library.DAL
         public List<object> Get(int Id)
         {
             List<object> result = new List<object>();
-            var persons = _context.People.Include(c => c.LibraryCards).FirstOrDefault(u => u.Id == Id);
-            foreach (var item in persons.LibraryCards)
-            {
-                var books = _context.Books.Find(item.BookId);
-                var authors = _context.Authors.Find(_context.Books.FirstOrDefault(u => u.Id == item.BookId).AuthorId);
-                var author = new Author { FirstName = authors.FirstName, LastName = authors.LastName, MiddleName = authors.MiddleName };
-                result.Add(books.Name);
-                result.Add(author);
-                var genres = _context.BookGenres.Where(u => u.BookId == books.Id).ToList();
+            var PersonById = _context.People.Include(c => c.LibraryCards).FirstOrDefault(u => u.Id == Id);
 
-                foreach (var genre in genres)
+            foreach (var item in PersonById.LibraryCards)
+            {
+                var Book = _context.Books.Find(item.BookId);
+                var Author = _context.Authors.Find(_context.Books.FirstOrDefault(u => u.Id == item.BookId).AuthorId);
+                var AuthorById = new Author { FirstName = Author.FirstName, LastName = Author.LastName, MiddleName = Author.MiddleName };
+                result.Add(Book.Name);
+                result.Add(AuthorById);
+                var GenreByBookId = _context.BookGenres.Where(u => u.BookId == Book.Id).ToList();
+
+                foreach (var genre in GenreByBookId)
                 {
-                    var findgenre = _context.Genres.Find(genre.GenreId);
-                    var genr = new Genre { GenreName = findgenre.GenreName };
-                    result.Add(genr);
+                    var GenreById = _context.Genres.Find(genre.GenreId);
+                    var Genre = new Genre { GenreName = GenreById.GenreName };
+                    result.Add(Genre);
                 }
             }
             return result;
@@ -90,30 +89,30 @@ namespace Library.DAL
 
         public Person InsertPerson(Person ourPerson)
         {
-            var persons = new Person
+            var NewPerson = new Person
             {
                 FirstName = ourPerson.FirstName,
                 LastName = ourPerson.LastName,
                 MiddleName = ourPerson.MiddleName,
                 BirthDay = ourPerson.BirthDay
             };
-            _context.People.Add(persons);
+            _context.People.Add(NewPerson);
             _context.SaveChanges();
-            return persons;
+            return NewPerson;
         }
 
         public Person UpdatePerson(Person ourPerson)
         {
-            Person person = _context.People.FirstOrDefault(u => u.Id == ourPerson.Id);
-            if (person != null)
+            Person PersonById = _context.People.FirstOrDefault(u => u.Id == ourPerson.Id);
+            if (PersonById != null)
             {
-                person.BirthDay = ourPerson.BirthDay;
-                person.FirstName = ourPerson.FirstName;
-                person.LastName = ourPerson.LastName;
-                person.MiddleName = ourPerson.MiddleName;
+                PersonById.BirthDay = ourPerson.BirthDay;
+                PersonById.FirstName = ourPerson.FirstName;
+                PersonById.LastName = ourPerson.LastName;
+                PersonById.MiddleName = ourPerson.MiddleName;
                 _context.SaveChanges();
             }
-            return person;
+            return PersonById;
         }
     }
 }

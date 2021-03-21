@@ -1,7 +1,5 @@
-﻿using Dapper;
-using Library.Context;
+﻿using Library.Context;
 using Library.Models;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data;
@@ -18,49 +16,52 @@ namespace Library.DAL
             _context = context;
         }
 
-        public List<object> AllBookByAuthor(string FirstName, string LastName, string MiddleName)
+        public List<object> GetByAuthor(string FirstName, string LastName, string MiddleName)
         {
             List<object> result = new List<object>();
-            var authors = _context.Authors.Include(u => u.Books).ThenInclude(u => u.BookGenres).ThenInclude(u => u.Genre).Where(p => p.FirstName == FirstName && p.LastName == LastName && p.MiddleName == MiddleName).ToList();
-            foreach (var a in authors)
+            var AuthorByFIO = _context.Authors.Include(u => u.Books).ThenInclude(u => u.BookGenres).ThenInclude(u => u.Genre).
+                            Where(p => p.FirstName == FirstName && p.LastName == LastName && p.MiddleName == MiddleName).ToList();
+            foreach (var author in AuthorByFIO)
             {
-                var newAuthor = new { Author = a.FirstName + " " + a.LastName + " " + a.MiddleName };
-                result.Add(newAuthor);
+                var NewAuthor = new { Author = author.FirstName + " " + author.LastName + " " + author.MiddleName };
+                result.Add(NewAuthor);
 
-                foreach (var b in a.Books)
+                foreach (var book in author.Books)
                 {
-                    var newBook = new { Book = b.Name };
-                    result.Add(newBook);
+                    var NewBook = new { Book = book.Name };
+                    result.Add(NewBook);
 
-                    foreach (var g in b.BookGenres)
+                    foreach (var genre in book.BookGenres)
                     {
-                        var newGenre = new { Genre = g.Genre.GenreName };
-                        result.Add(newGenre);
+                        var NewGenre = new { Genre = genre.Genre.GenreName };
+                        result.Add(NewGenre);
                     }
                 }
             }
             return result;
         }
 
-        public List<object> AllBookByGenre(string Genre)
+        public List<object> GetByGenre(string Genre)
         {
             List<object> result = new List<object>();
-            var genres = _context.Genres.Include(u => u.BookGenres).ThenInclude(u => u.Book).ThenInclude(u => u.Author).Where(u => u.GenreName == Genre).ToList();
-            foreach (var a in genres)
+            var GenreByName = _context.Genres.Include(u => u.BookGenres).ThenInclude(u => u.Book).ThenInclude(u => u.Author).
+                                            Where(u => u.GenreName == Genre).ToList();
+            foreach (var genre in GenreByName)
             {
-                var newGenre = new { Genre = a.GenreName };
-                result.Add(newGenre);
+                var NewGenre = new { Genre = genre.GenreName };
+                result.Add(NewGenre);
 
-                foreach (var b in a.BookGenres)
+                foreach (var book in genre.BookGenres)
                 {
-                    var newBook = new { Book = b.Book.Name };
-                    result.Add(newBook);
-                    var authors = _context.Authors.Include(u => u.Books).ThenInclude(u => u.BookGenres).ThenInclude(u => u.Genre).Where(u => u.Id == b.Book.AuthorId).ToList();
+                    var NewBook = new { Book = book.Book.Name };
+                    result.Add(NewBook);
+                    var AuthorById = _context.Authors.Include(u => u.Books).ThenInclude(u => u.BookGenres).ThenInclude(u => u.Genre).
+                                                    Where(u => u.Id == book.Book.AuthorId).ToList();
 
-                    foreach (var g in authors)
+                    foreach (var author in AuthorById)
                     {
-                        var newAuthor = new { Author = g.FirstName + " " + g.LastName + " " + g.MiddleName };
-                        result.Add(newAuthor);
+                        var NewAuthor = new { Author = author.FirstName + " " + author.LastName + " " + author.MiddleName };
+                        result.Add(NewAuthor);
                     }
                 }
             }
@@ -69,122 +70,121 @@ namespace Library.DAL
 
         public bool DeleteBook(int Id)
         {
-            var library = _context.LibraryCards.FirstOrDefault(u => u.BookId == Id);
-            if (library == null)
+            var LibraryByBookId = _context.LibraryCards.FirstOrDefault(u => u.BookId == Id);
+            if (LibraryByBookId == null)
             {
-                var book = _context.Books.Find(Id);
-                _context.Books.Remove(book);
+                var BookById = _context.Books.Find(Id);
+                _context.Books.Remove(BookById);
                 _context.SaveChanges();
                 return true;
             }
             return false;
         }
 
-        public bool InsertBook(Book book)
+        public bool Insert(Book book)
         {
-            var author = _context.Authors.Find(book.AuthorId);
-            var genre = " ";
-            if (author == null)
+            var Author = _context.Authors.Find(book.AuthorId);
+            var Genre = " ";
+            if (Author == null)
             {
-                author = new Author { FirstName = book.Author.FirstName, LastName = book.Author.LastName, MiddleName = book.Author.MiddleName };
-                _context.Authors.Add(author);
+                Author = new Author { FirstName = book.Author.FirstName, LastName = book.Author.LastName, MiddleName = book.Author.MiddleName };
+                _context.Authors.Add(Author);
                 _context.SaveChanges();
             }
 
-            foreach (var b in book.BookGenres)
+            foreach (var genre in book.BookGenres)
             {
-                genre = b.Genre.GenreName;
+                Genre = genre.Genre.GenreName;
             }
 
-            var genreFind = _context.Genres.Include(u => u.BookGenres).ThenInclude(u => u.Genre).FirstOrDefault(u => u.GenreName == genre);
-            if (genreFind == null)
+            var GenreByName = _context.Genres.Include(u => u.BookGenres).ThenInclude(u => u.Genre).FirstOrDefault(u => u.GenreName == Genre);
+            if (GenreByName == null)
             {
-                genreFind = new Genre { GenreName = genre };
-                _context.Genres.Add(genreFind);
+                GenreByName = new Genre { GenreName = Genre };
+                _context.Genres.Add(GenreByName);
             }
 
-            Book newbook = new Book { Name = book.Name, AuthorId = author.Id };
-            _context.Books.Add(newbook);
+            Book NewBook = new Book { Name = book.Name, AuthorId = Author.Id };
+            _context.Books.Add(NewBook);
 
-            BookGenre bookGenre = new BookGenre { BookId = newbook.Id, GenreId = genreFind.Id };
-            newbook.BookGenres.Add(bookGenre);
+            BookGenre NewBookGenre = new BookGenre { BookId = NewBook.Id, GenreId = GenreByName.Id };
+            NewBook.BookGenres.Add(NewBookGenre);
 
             _context.SaveChanges();
             return true;
         }
 
-        public List<object> NewGenre(int Id, List<int> genres)
+        public List<object> InsertGenreByBook(int Id, List<int> genres)
         {
-            List<int> ourGenre = new List<int>();
-            List<int> newGenre = genres;
-            List<int> compare = new List<int>();
+            List<int> OurGenreList = new List<int>();
+            List<int> NewGenreList = genres;
+            List<int> Compare = new List<int>();
 
-            var books = _context.Books.Include(u => u.BookGenres).ThenInclude(u => u.Genre).FirstOrDefault(u => u.Id == Id);
-            foreach (var genred in books.BookGenres)
+            var BookById = _context.Books.Include(u => u.BookGenres).ThenInclude(u => u.Genre).FirstOrDefault(u => u.Id == Id);
+
+            foreach (var genre in BookById.BookGenres)
             {
-                ourGenre.Add(genred.Genre.Id);
+                OurGenreList.Add(genre.Genre.Id);
             }
 
-            if (ourGenre.Count == newGenre.Count)
+            if (OurGenreList.Count == NewGenreList.Count)
             {
-                compare = ourGenre.Except(newGenre).ToList();
-                foreach (var item in compare)
-                {
-                    var oldInformation = books.BookGenres.FirstOrDefault(u => u.GenreId == item);
-                    books.BookGenres.Remove(oldInformation);
-                    _context.SaveChanges();
-
-                }
-                compare = newGenre.Except(ourGenre).ToList();
-                foreach (var item in compare)
-                {
-                    var newInformation = _context.Genres.Find(item);
-                    books.BookGenres.Add(new BookGenre { Book = books, Genre = newInformation });
-                    _context.SaveChanges();
-
-                }
+                Compare = OurGenreList.Except(NewGenreList).ToList();
+                RemoveBookGenre(Compare, BookById);
+                Compare = NewGenreList.Except(OurGenreList).ToList();
+                AddBookGenre(Compare, BookById);
             }
-            if (ourGenre.Count > newGenre.Count)
-            {
-                compare = ourGenre.Except(newGenre).ToList();
-                foreach (var item in compare)
-                {
-                    var oldInformation = books.BookGenres.FirstOrDefault(u => u.GenreId == item);
-                    books.BookGenres.Remove(oldInformation);
-                    _context.SaveChanges();
 
-                }
+            if (OurGenreList.Count > NewGenreList.Count)
+            {
+                Compare = OurGenreList.Except(NewGenreList).ToList();
+                RemoveBookGenre(Compare, BookById);
             }
-            if (newGenre.Count > ourGenre.Count)
+            if (NewGenreList.Count > OurGenreList.Count)
             {
-                compare = newGenre.Except(ourGenre).ToList();
-                foreach (var item in compare)
-                {
-                    var newInformation = _context.Genres.Find(item);
-                    books.BookGenres.Add(new BookGenre { Book = books, Genre = newInformation });
-                    _context.SaveChanges();
-
-                }
+                Compare = NewGenreList.Except(OurGenreList).ToList();
+                AddBookGenre(Compare, BookById);
             }
 
             List<object> result = new List<object>();
-            var bookss = _context.Books.Include(u => u.BookGenres).ThenInclude(u => u.Genre).FirstOrDefault(u => u.Id == Id);
-            var ourBook = new { bookss.Name };
-            result.Add(ourBook);
+            var Book = _context.Books.Include(u => u.BookGenres).ThenInclude(u => u.Genre).FirstOrDefault(u => u.Id == Id);
+            var OurBook = new { Book.Name };
+            result.Add(OurBook);
 
-            foreach (var a in bookss.BookGenres)
+            foreach (var genre in Book.BookGenres)
             {
-                var ourGenree = new { Genre = a.Genre.GenreName };
-                result.Add(ourGenree);
+                var OurGenre = new { Genre = genre.Genre.GenreName };
+                result.Add(OurGenre);
             }
-            var ourAuthor = _context.Books.Include(u => u.Author).Where(u => u.Id == Id).ToList();
-            foreach (var d in ourAuthor)
+
+            var AuthorById = _context.Books.Include(u => u.Author).Where(u => u.Id == Id).ToList();
+            foreach (var author in AuthorById)
             {
-                var sgdfg = new { Author = d.Author.FirstName + " " + d.Author.LastName + " " + d.Author.MiddleName };
-                result.Add(sgdfg);
+                var OurAuthor = new { Author = author.Author.FirstName + " " + author.Author.LastName + " " + author.Author.MiddleName };
+                result.Add(OurAuthor);
             }
 
             return result;
+        }
+
+        private void AddBookGenre(List<int> Compare, Book BookById)
+        {
+            foreach (var item in Compare)
+            {
+                var NewInformation = _context.Genres.Find(item);
+                BookById.BookGenres.Add(new BookGenre { Book = BookById, Genre = NewInformation });
+                _context.SaveChanges();
+            }
+        }
+
+        private void RemoveBookGenre(List<int> Compare, Book BookById)
+        {
+            foreach (var item in Compare)
+            {
+                var OldInformation = BookById.BookGenres.FirstOrDefault(u => u.GenreId == item);
+                BookById.BookGenres.Remove(OldInformation);
+                _context.SaveChanges();
+            }
         }
     }
 }

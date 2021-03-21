@@ -1,10 +1,6 @@
-﻿using Dapper;
-using Library.Context;
+﻿using Library.Context;
 using Library.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -76,72 +72,72 @@ namespace Library.DAL
 
         public Author AddAuthor(Author author)
         {
-            var authors = new Author
+            var NewAuthor = new Author
             {
                 FirstName = author.FirstName,
                 LastName = author.LastName,
                 MiddleName = author.MiddleName,
             };
 
-            _context.Authors.Add(authors);
+            _context.Authors.Add(NewAuthor);
             _context.SaveChanges();
 
-            string result = "";
+            string Name = "";
             if (author.Books != null)
             {
                 foreach (var item in author.Books)
                 {
-                    result = item.Name;
+                    Name = item.Name;
                 }
-                if (result != null)
+                if (Name != null)
                 {
-                    var books = new Book
+                    var NewBook = new Book
                     {
-                        Name = result,
-                        Author = authors
+                        Name = Name,
+                        Author = NewAuthor
                     };
-                    _context.Books.Add(books);
+                    _context.Books.Add(NewBook);
                     _context.SaveChanges();
                 }
             }
-            return authors;
+            return NewAuthor;
         }
 
-        public bool DeleteAuthor(Author author)
+        public bool Delete(Author author)
         {
-            var Id = _context.Authors.FirstOrDefault(p => p.FirstName == author.FirstName && p.LastName == author.LastName && p.MiddleName == author.MiddleName);
-            var book = _context.Books.FirstOrDefault(p => p.AuthorId == Id.Id);
-            if (Id != null && book == null)
+            var AuthorId = _context.Authors.FirstOrDefault(p => p.FirstName == author.FirstName && p.LastName == author.LastName && p.MiddleName == author.MiddleName);
+            var BookByAuthorId = _context.Books.FirstOrDefault(p => p.AuthorId == AuthorId.Id);
+            if (AuthorId != null && BookByAuthorId == null)
             {
-                _context.Authors.Remove(Id);
+                _context.Authors.Remove(AuthorId);
                 _context.SaveChanges();
                 return true;
             }
             return false;
         }
 
-        public List<string> GetAllAuthor()
+        public List<string> Get()
         {
-            var authors = _context.Authors.Select(u => u.FirstName + " " + u.LastName + " " + u.MiddleName).ToList();
-            return (authors);
+            var Authors = _context.Authors.Select(u => u.FirstName + " " + u.LastName + " " + u.MiddleName).ToList();
+            return (Authors);
         }
 
-        public List<object> GetBook(int Id)
+        public List<object> GetById(int Id)
         {
             List<object> result = new List<object>();
-            var authors = _context.Authors.Include(u => u.Books).ThenInclude(u => u.BookGenres).ThenInclude(u => u.Genre).Where(i => i.Id == Id).ToList();
-            foreach (var a in authors)
+            var AuthorById = _context.Authors.Include(u => u.Books).ThenInclude(u => u.BookGenres).ThenInclude(u => u.Genre).Where(i => i.Id == Id).ToList();
+            foreach (var author in AuthorById)
             {
-                var newAuthor = new { Author = a.FirstName + " " + a.LastName + " " + a.MiddleName };
-                result.Add(newAuthor);
-                foreach (var b in a.Books)
+                var NewAuthor = new { Author = author.FirstName + " " + author.LastName + " " + author.MiddleName };
+                result.Add(NewAuthor);
+                foreach (var book in author.Books)
                 {
-                    var newBook = new { Book = b.Name };
-                    result.Add(newBook);
-                    foreach (var g in b.BookGenres)
+                    var NewBook = new { Book = book.Name };
+                    result.Add(NewBook);
+                    foreach (var genre in book.BookGenres)
                     {
-                        var newGenre = new { Genre = g.Genre.GenreName };
-                        result.Add(newGenre);
+                        var NewGenre = new { Genre = genre.Genre.GenreName };
+                        result.Add(NewGenre);
                     }
                 }
             }

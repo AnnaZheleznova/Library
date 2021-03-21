@@ -2,9 +2,6 @@
 using Library.DAL;
 using Library.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Library.Controllers
 {
@@ -31,7 +28,7 @@ namespace Library.Controllers
 
         [Route("person/post")]
         [HttpPost]
-        public ActionResult Post([FromBody] Person ourPerson)
+        public ActionResult Insert([FromBody] Person ourPerson)
         {
             var result = _personRepository.InsertPerson(ourPerson);
             return Ok(result);
@@ -71,7 +68,7 @@ namespace Library.Controllers
 
         [Route("person/getbookperson/{bookId}/{personId}")]
         [HttpPost]
-        public ActionResult GetBookPerson(int bookId, int personId)
+        public ActionResult InsertLibraryCard(int bookId, int personId)
         {
             var result = _personRepository.InsertLibraryCard(bookId, personId);
             return Ok(result);
@@ -79,7 +76,7 @@ namespace Library.Controllers
 
         [Route("person/PutBookPerson/{bookId}/{personId}")]
         [HttpDelete]
-        public ActionResult PutBookPerson(int bookId, int personId)
+        public ActionResult DeleteLibraryCard(int bookId, int personId)
         {
             var result = _personRepository.DeleteLibraryCard(bookId, personId);
 

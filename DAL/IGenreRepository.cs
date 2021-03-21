@@ -6,7 +6,7 @@ namespace Library.DAL
     interface IGenreRepository
     {
         List<string> GetGenres();
-        List<string> AddGenres(Genre genre);
+        List<string> InsertGenre(Genre genre);
         List<object> Statistic();
 
     }

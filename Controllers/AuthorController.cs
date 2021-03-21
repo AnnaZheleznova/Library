@@ -1,12 +1,7 @@
 ﻿using Library.Context;
+using Library.DAL;
 using Library.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using Microsoft.EntityFrameworkCore;
-using System;
-using Library.DAL;
 
 namespace Library.Controllers
 {
@@ -26,15 +21,15 @@ namespace Library.Controllers
         [HttpGet]
         public ActionResult Get()
         {
-            var authors = _authorRepository.GetAllAuthor();
+            var authors = _authorRepository.Get();
             return Ok(authors);
         }
 
         [Route("author/bookbyauthor/{Id}")]
         [HttpGet]
-        public IActionResult GetBook(int Id)
+        public IActionResult GetById(int Id)
         {
-            var result = _authorRepository.GetBook(Id);
+            var result = _authorRepository.GetById(Id);
             return Ok(result);
         }
 
@@ -43,7 +38,7 @@ namespace Library.Controllers
         [HttpDelete]
         public IActionResult Delete([FromBody] Author author)
         {
-            var result = _authorRepository.DeleteAuthor(author);
+            var result = _authorRepository.Delete(author);
             if(result==true)
             {
                 return Ok();
